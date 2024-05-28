@@ -1,5 +1,4 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto/screens/provider.dart';
@@ -29,8 +28,10 @@ class _Avatar extends State<Avatar> {
     super.initState();
   }
 
+//Funcion que devuelve una lista con los avatares desbloqueados
+
   getUnlockAvatars(String userKey) async {
-    //Funcion que devuelve una lista con los avatares desbloqueados
+
     final Query _unlockAvatars = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
