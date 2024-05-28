@@ -1,0 +1,65 @@
+@startuml OKDiario
+set namespaceSeparator ::
+
+class "proyecto::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "proyecto::main.dart::MyApp"
+
+class "proyecto::screens::register.dart::Register" {
+  +State<Register> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "proyecto::screens::register.dart::Register"
+
+class "proyecto::widgets::widget_top_home.dart::TopBarHome" {
+  +Size preferredSize
+  +bool arrow
+  +Widget build()
+}
+
+"proyecto::widgets::widget_top_home.dart::TopBarHome" o-- "dart::ui::Size"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "proyecto::widgets::widget_top_home.dart::TopBarHome"
+"flutter::src::widgets::preferred_size.dart::PreferredSizeWidget" <|-- "proyecto::widgets::widget_top_home.dart::TopBarHome"
+
+class "proyecto::widgets::widget_top_login.dart::TopBarLogin" {
+  +Size preferredSize
+  +bool arrow
+  +Widget build()
+}
+
+"proyecto::widgets::widget_top_login.dart::TopBarLogin" o-- "dart::ui::Size"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "proyecto::widgets::widget_top_login.dart::TopBarLogin"
+"flutter::src::widgets::preferred_size.dart::PreferredSizeWidget" <|-- "proyecto::widgets::widget_top_login.dart::TopBarLogin"
+
+class "proyecto::widgets::widget_top_initial.dart::TopBarInitial" {
+  +Size preferredSize
+  +bool arrow
+  +State<TopBarInitial> createState()
+}
+
+"proyecto::widgets::widget_top_initial.dart::TopBarInitial" o-- "dart::ui::Size"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "proyecto::widgets::widget_top_initial.dart::TopBarInitial"
+"flutter::src::widgets::preferred_size.dart::PreferredSizeWidget" <|-- "proyecto::widgets::widget_top_initial.dart::TopBarInitial"
+
+class "proyecto::widgets::widget_top_initial.dart::_TopBarInitialState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "proyecto::widgets::widget_top_initial.dart::_TopBarInitialState"
+
+class "proyecto::widgets::widget_top_homeStudent.dart::TopBarStudentHome" {
+  +Size preferredSize
+  +bool arrow
+  +int backIndex
+  +Route<dynamic> customChangeView()
+  +Widget build()
+}
+
+"proyecto::widgets::widget_top_homeStudent.dart::TopBarStudentHome" o-- "dart::ui::Size"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "proyecto::widgets::widget_top_homeStudent.dart::TopBarStudentHome"
+"flutter::src::widgets::preferred_size.dart::PreferredSizeWidget" <|-- "proyecto::widgets::widget_top_homeStudent.dart::TopBarStudentHome"
+
+
+@enduml
