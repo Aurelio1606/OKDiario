@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -38,6 +37,7 @@ List<int?> indexField = [];
 bool questionComplete = false;
 
 class StudentView extends StatefulWidget {
+  /// Current page
   final int page;
 
   const StudentView({super.key, this.page = 0});
@@ -45,18 +45,26 @@ class StudentView extends StatefulWidget {
   _StudentView createState() => _StudentView();
 }
 
+///Class that displays student view on the app
 class _StudentView extends State<StudentView> {
+  ///Current page 
   int currentPageIndex = 0;
+  ///List of colors
   List<Color> colorList = <Color>[];
   PageController? _pageController;
   late final List<Widget Function()> _widgetOptions;
+  ///Number of points user has earned at a certain day
   int dailyPoints = 0;
+  ///Number of points user has 
   int totalPoints = 0;
+  ///Number of points user has earnead overall
   int globalPoints = 0;
   int numQuestions = 0;
+  ///Wether a question is completed or not
   bool completed = false;
-  int aux = 0;
+  ///Actual strike from user
   int racha = 0;
+  ///List of today achivements
   List<Map<dynamic, dynamic>> todayAchivements = [];
 
   @override
@@ -105,7 +113,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
-//! Notificaciones y version//
+  ///Update user notifications if app version changes
   void updateDependencies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -129,26 +137,20 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Checks if user is subscribed, if not, user is subscribe to the topics
   void getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool subscrito = prefs.getBool('subscrito') ?? false;
     if (!subscrito) {
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      //await FirebaseMessaging.instance.subscribeToTopic("Recordatorio");
-      // await FirebaseMessaging.instance
-      //     .subscribeToTopic("RecordatorioPollSemana");
-      // await FirebaseMessaging.instance
-      //     .subscribeToTopic("RecordatorioPollViernes");
-      //print("WEQEQWWEIQWOIEUQWE");
       await FirebaseMessaging.instance.subscribeToTopic("RecordatorioManana");
       await FirebaseMessaging.instance.subscribeToTopic("RecordatorioTarde");
       await FirebaseMessaging.instance.subscribeToTopic("RecordatorioNoche");
       prefs.setBool('subscrito', true);
-      print(fcmToken);
+      
     }
   }
-//!------------------///
 
+  ///Calculates actual week number
   int getWeekNumber() {
     final now = DateTime.now();
     final firstDay = DateTime(now.year, 1, 1);
@@ -158,6 +160,7 @@ class _StudentView extends State<StudentView> {
     return ((to.difference(from).inDays + firstDay.weekday) / 7).ceil();
   }
 
+  ///Gets user's dailyPoints from database
   getPuntos(String userKey) async {
     final DatabaseReference _dailyPoints = FirebaseDatabase(
             databaseURL:
@@ -179,18 +182,8 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets actual user's puntuation from database
   getPuntosTotales(String userKey) async {
-    // final Future<DatabaseEvent> _totalPoints = FirebaseDatabase(
-    //         databaseURL:
-    //             "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-    //     .ref()
-    //     .child("Usuarios2")
-    //     .child("DatosUsuario")
-    //     .child(userKey).once().then((value){
-    //       print((value.snapshot.value as Map)['PuntosTotal']);
-    //       totalPoints = (value.snapshot.value as Map)['PuntosTotal'];
-    //       return value;
-    //     });
 
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
@@ -212,6 +205,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets points user has earned overall from database
   getGlobalPuntuation(String userKey) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
             databaseURL:
@@ -235,6 +229,10 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Initializes parameters and gets the question title [questionArg], its color [colorArg],
+  ///totalPuntuation from user [totalPuntuationArg], the daily puntuation [dayPointsArg],
+  ///the global puntuation [globalPointsArg], the type os the question [questionTypeArg] and
+  ///its key [questionKeyArg]
   initializeParameters(
       String questionArg,
       Color? colorArg,
@@ -244,11 +242,9 @@ class _StudentView extends State<StudentView> {
       Query answersArg,
       String questionTypeArg,
       String questionKeyArg) {
+    
     question = questionArg;
     color = colorArg;
-    // if (tareas["Correcta"] != null) {
-    //   respuestas.add(tareas["Correcta"]);
-    // }
 
     totalPuntuation = totalPuntuationArg;
     dayPoints = dayPointsArg;
@@ -258,6 +254,7 @@ class _StudentView extends State<StudentView> {
     questionKey = questionKeyArg;
   }
 
+  ///Gets the answers from user's to a certain question if it's completed
   getAnswers(String userKey, String questionKey, bool complete) async {
     final DatabaseReference _savedAnswer = FirebaseDatabase(
             databaseURL:
@@ -273,7 +270,6 @@ class _StudentView extends State<StudentView> {
         .child(questionKey);
 
     DataSnapshot snapshot = await _savedAnswer.get();
-    print(snapshot.value);
     if (complete) {
       if (snapshot.value != null) {
         if ((snapshot.value as Map)['RespuestaEscrita'] != null) {
@@ -296,6 +292,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Checks the number of points a user has earned in a week and returns positive feedback according to user points
   Widget testTendencie(Map puntos) {
     //! Arreglar return
     List<double> differences = [];
@@ -600,9 +597,8 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Checks if a question should be available according to the hour
   int checkQuestion(int hour, int questionKey) {
-    //Funcion para comprobar si las funciones estan disponibles
-    //y mostrar el candado y la alerta o no y si se pueden seleccionar
 
     int hour1 = 15;
     int hour2 = 18;
