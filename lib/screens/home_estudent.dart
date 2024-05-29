@@ -62,7 +62,7 @@ class _StudentView extends State<StudentView> {
   int numQuestions = 0;
   ///Wether a question is completed or not
   bool completed = false;
-  ///Actual strike from user
+  ///Actual streak from user
   int racha = 0;
   ///List of today achivements
   List<Map<dynamic, dynamic>> todayAchivements = [];
@@ -613,7 +613,7 @@ class _StudentView extends State<StudentView> {
   }
 
 //!Comprobar con questions, funciones repetidas!//
-
+  ///Updates globalPoints in database
   updateGlobalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
             databaseURL:
@@ -628,6 +628,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
+  ///Update totalPoints in database
   updatePuntosTotales(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
@@ -642,6 +643,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
+  ///Updates dailyPoints in database
   updatePuntos(String userKey, int updatePoints) async {
     final DatabaseReference _updateDailyPoints = FirebaseDatabase(
             databaseURL:
@@ -661,6 +663,7 @@ class _StudentView extends State<StudentView> {
   }
 //!-----------!//
 
+  ///Checks if a questions has been completed to show the "tick" or not
   Future<bool> checkCompleteQuestion(
       String userKey, String questionNumber) async {
     final Query _checkComplete = FirebaseDatabase(
@@ -683,6 +686,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets daily and total points and update then adding up 50 points
   updateRachaPoints(String userKey) async {
     getPuntos(userKey).then((_) {
       updatePuntos(userKey, dailyPoints + 50);
@@ -692,24 +696,27 @@ class _StudentView extends State<StudentView> {
       updatePuntosTotales(userKey, totalPoints + 50);
       setState(() {});
     });
-    // await updatePuntos(userKey, dailyPoints + 50);
-    // await updatePuntosTotales(userKey, totalPoints + 50);
+
   }
 
+  ///Gets the number of questions that are shown in home page
   getNumQuestions(Query userTasks) async {
-    //Funcion para saber el numero de preguntas que hay en home page
+    
 
     DataSnapshot tam = await userTasks.get();
+    ///Auxiliar map used only to get the number of questions
     Map auxMap =
-        {}; //Mapa auxiliar que solo uso para saber el numero de preguntas
+        {}; 
 
     auxMap['respuesta'] = tam.value;
     auxMap['key'] = tam.key;
 
+    //-1 to show the points at the end of home page
     numQuestions = (auxMap['respuesta'] as Map).length -
-        1; //-1 para que al final se muestren los puntos
+        1; 
   }
 
+  ///Gets user's streak that is stored in the device
   getRacha(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
@@ -718,8 +725,6 @@ class _StudentView extends State<StudentView> {
       prefs.getInt('RachaMes') ?? now.month - 1,
       prefs.getInt('RachaDia') ?? now.day - 1,
     );
-
-    //print(rachaDate);
 
     if (DateTime.now().day != rachaDate.day) {
       if (DateTime.now().day - 1 == rachaDate.day) {
@@ -743,6 +748,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets from database user's longest streak
   getMaxRacha(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final DatabaseReference _maxRacha = FirebaseDatabase(
@@ -770,6 +776,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets from database user selected avatar
   getAvatar(String userKey) async {
     final DatabaseReference _selectedAvatar = FirebaseDatabase(
             databaseURL:
@@ -785,12 +792,10 @@ class _StudentView extends State<StudentView> {
     return snapshot.value;
   }
 
+  ///Gets from database 
   getLogros(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
-
-    // prefs.setInt('LogroMes', 4);
-    // prefs.setInt('LogroDia', 5);
 
     DateTime achivementDate = DateTime(
       now.year,
