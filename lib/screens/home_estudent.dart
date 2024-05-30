@@ -107,13 +107,11 @@ class _StudentView extends State<StudentView> {
   void _onItemTapped(int index) {
     setState(() {
       currentPageIndex = index;
-      // _pageController!.animateToPage(index,
-      //     duration: Duration(milliseconds: 700), curve: Curves.easeInOut);
       _pageController!.jumpToPage(index);
     });
   }
 
-  ///Update user notifications if app version changes
+  ///Updates user notifications if app version changes
   void updateDependencies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -137,7 +135,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  ///Checks if user is subscribed, if not, user is subscribe to the topics
+  ///Checks if user is subscribed, if not, user is subscribed to the topics
   void getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool subscrito = prefs.getBool('subscrito') ?? false;
@@ -231,7 +229,7 @@ class _StudentView extends State<StudentView> {
 
   ///Initializes parameters and gets the question title [questionArg], its color [colorArg],
   ///totalPuntuation from user [totalPuntuationArg], the daily puntuation [dayPointsArg],
-  ///the global puntuation [globalPointsArg], the type os the question [questionTypeArg] and
+  ///the global puntuation [globalPointsArg], the question type [questionTypeArg] and
   ///its key [questionKeyArg]
   initializeParameters(
       String questionArg,
@@ -353,7 +351,6 @@ class _StudentView extends State<StudentView> {
             ),
           ],
         );
-        // return '¡Has mejorado mucho!';
       }
 
       if (worse) {
@@ -613,7 +610,7 @@ class _StudentView extends State<StudentView> {
   }
 
 //!Comprobar con questions, funciones repetidas!//
-  ///Updates globalPoints in database
+  ///Updates globalPoints in the database
   updateGlobalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
             databaseURL:
@@ -628,7 +625,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
-  ///Update totalPoints in database
+  ///Update totalPoints in the database
   updatePuntosTotales(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
@@ -643,7 +640,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
-  ///Updates dailyPoints in database
+  ///Updates dailyPoints in the database
   updatePuntos(String userKey, int updatePoints) async {
     final DatabaseReference _updateDailyPoints = FirebaseDatabase(
             databaseURL:
@@ -748,7 +745,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  ///Gets from database user's longest streak
+  ///Gets user's longest streak from database
   getMaxRacha(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final DatabaseReference _maxRacha = FirebaseDatabase(
@@ -761,7 +758,9 @@ class _StudentView extends State<StudentView> {
         .child("MaxRacha");
 
     DataSnapshot snapshot = await _maxRacha.get();
-    //prefs.setInt('Racha', 2);
+
+    //If the user has a streak stored in the database, it checks if which streak is bigger, todays one or the one stored
+    //in the database. Depending on which is bigger, a different message is shown to the user 
     if (snapshot.exists) {
       if ((prefs.getInt('Racha') ?? 1) >=
           int.parse(snapshot.value.toString())) {
@@ -771,12 +770,13 @@ class _StudentView extends State<StudentView> {
         return "Tu máxima racha fue ${snapshot.value}.\n¡Intenta superarla!";
       }
     } else {
+      //if there was no streak, it takes the streak stored in the user device and shows positive feedback
       _maxRacha.set(prefs.getInt('Racha') ?? 1);
       return "Felicidades es tu mayor racha";
     }
   }
 
-  ///Gets from database user selected avatar
+  ///Gets user's selected avatar from database
   getAvatar(String userKey) async {
     final DatabaseReference _selectedAvatar = FirebaseDatabase(
             databaseURL:
@@ -792,7 +792,7 @@ class _StudentView extends State<StudentView> {
     return snapshot.value;
   }
 
-  ///Gets from database 
+  ///Gets the availabe achivements from database
   getLogros(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
@@ -803,6 +803,7 @@ class _StudentView extends State<StudentView> {
       prefs.getInt('LogroDia') ?? now.day - 1,
     );
 
+    //If its a new day, achivements shown to the user has to change
     if (achivementDate.day != now.day) {
       final Query _achivements = FirebaseDatabase(
               databaseURL:
@@ -824,37 +825,23 @@ class _StudentView extends State<StudentView> {
 
       var randomInt = Random().nextInt((snapshot.value as List).length);
 
-      //Limpiamos los logros diarios
+      //The old achivements are removed
       _todayAchivements.remove();
 
-      //Añadimos el logro del dia
+      //The user will see the new achivements that are added ramdonly
       _todayAchivements.push().set({
         'Logro': (snapshot.value as List).elementAt(randomInt)['Logro'],
         'Objetivo': (snapshot.value as List).elementAt(randomInt)['Objetivo'],
         'Id': randomInt,
       });
 
-      print((snapshot.value as List).elementAt(randomInt));
+      //Actual day and month are update on device's sharedPreferences
       prefs.setInt('LogroDia', now.day);
       prefs.setInt('LogroMes', now.month);
     }
   }
 
-  updateLogros(String userKey, BuildContext context) async {
-    final DatabaseReference _achivements = FirebaseDatabase(
-            databaseURL:
-                "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-        .ref()
-        .child("Usuarios2")
-        .child("DatosUsuario")
-        .child(userKey)
-        .child("Logros");
-
-    DataSnapshot snapshot = await _achivements.get();
-
-    //print("MAPA2 ${(snapshot.value as List).elementAt(0)}");
-  }
-
+  
   checkCompleteLogros(String userKey, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -1048,7 +1035,6 @@ class _StudentView extends State<StudentView> {
     getPuntos(userProvider.userKey);
     getNumQuestions(_userTasks);
     getLogros(userProvider.userKey);
-    updateLogros(userProvider.userKey, context);
     checkCompleteLogros(userProvider.userKey, context);
 
     //print("SEMANAAA ${getWeekNumber()}");
