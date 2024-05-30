@@ -12,14 +12,11 @@ import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto/screens/avatar.dart';
-import 'package:proyecto/screens/notification_provider.dart';
 import 'package:proyecto/screens/provider.dart';
 import 'package:proyecto/screens/questions.dart';
 import 'package:proyecto/services/notifications.dart';
-import 'package:proyecto/services/operations.dart';
 import 'package:proyecto/widgets/widget_top_homeStudent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
 String question = "";
@@ -47,23 +44,30 @@ class StudentView extends StatefulWidget {
 
 ///Class that displays student view on the app
 class _StudentView extends State<StudentView> {
-  ///Current page 
+  ///Current page
   int currentPageIndex = 0;
+
   ///List of colors
   List<Color> colorList = <Color>[];
   PageController? _pageController;
   late final List<Widget Function()> _widgetOptions;
+
   ///Number of points user has earned at a certain day
   int dailyPoints = 0;
-  ///Number of points user has 
+
+  ///Number of points user has
   int totalPoints = 0;
+
   ///Number of points user has earnead overall
   int globalPoints = 0;
   int numQuestions = 0;
+
   ///Wether a question is completed or not
   bool completed = false;
+
   ///Actual streak from user
   int racha = 0;
+
   ///List of today achivements
   List<Map<dynamic, dynamic>> todayAchivements = [];
 
@@ -144,7 +148,6 @@ class _StudentView extends State<StudentView> {
       await FirebaseMessaging.instance.subscribeToTopic("RecordatorioTarde");
       await FirebaseMessaging.instance.subscribeToTopic("RecordatorioNoche");
       prefs.setBool('subscrito', true);
-      
     }
   }
 
@@ -182,7 +185,6 @@ class _StudentView extends State<StudentView> {
 
   ///Gets actual user's puntuation from database
   getPuntosTotales(String userKey) async {
-
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -240,7 +242,6 @@ class _StudentView extends State<StudentView> {
       Query answersArg,
       String questionTypeArg,
       String questionKeyArg) {
-    
     question = questionArg;
     color = colorArg;
 
@@ -277,7 +278,6 @@ class _StudentView extends State<StudentView> {
           (snapshot.value as Map)['Indice'].forEach((key) {
             indexField.add(key);
           });
-          //indexField = (snapshot.value as Map)['Indice'].toList();
         } else {
           testField = (snapshot.value as Map)['Indice'];
         }
@@ -596,7 +596,6 @@ class _StudentView extends State<StudentView> {
 
   ///Checks if a question should be available according to the hour
   int checkQuestion(int hour, int questionKey) {
-
     int hour1 = 15;
     int hour2 = 18;
 
@@ -693,24 +692,20 @@ class _StudentView extends State<StudentView> {
       updatePuntosTotales(userKey, totalPoints + 50);
       setState(() {});
     });
-
   }
 
   ///Gets the number of questions that are shown in home page
   getNumQuestions(Query userTasks) async {
-    
-
     DataSnapshot tam = await userTasks.get();
+
     ///Auxiliar map used only to get the number of questions
-    Map auxMap =
-        {}; 
+    Map auxMap = {};
 
     auxMap['respuesta'] = tam.value;
     auxMap['key'] = tam.key;
 
     //-1 to show the points at the end of home page
-    numQuestions = (auxMap['respuesta'] as Map).length -
-        1; 
+    numQuestions = (auxMap['respuesta'] as Map).length - 1;
   }
 
   ///Gets user's streak that is stored in the device
@@ -741,7 +736,6 @@ class _StudentView extends State<StudentView> {
       }
     } else {
       racha = prefs.getInt('Racha') ?? 1;
-
     }
   }
 
@@ -760,7 +754,7 @@ class _StudentView extends State<StudentView> {
     DataSnapshot snapshot = await _maxRacha.get();
 
     //If the user has a streak stored in the database, it checks if which streak is bigger, todays one or the one stored
-    //in the database. Depending on which is bigger, a different message is shown to the user 
+    //in the database. Depending on which is bigger, a different message is shown to the user
     if (snapshot.exists) {
       if ((prefs.getInt('Racha') ?? 1) >=
           int.parse(snapshot.value.toString())) {
@@ -841,7 +835,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  
+  //Gets daily achivements and checks if user has completed then
   checkCompleteLogros(String userKey, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -870,17 +864,16 @@ class _StudentView extends State<StudentView> {
 
     DataSnapshot todayAchivements = await _todayAchivements.get();
 
-    //print("La llave es ${(todayAchivements.value as Map).values.elementAt(0)['Id']}");
-
     DateTime now = DateTime.now();
     DateTime loginDate = DateTime(
-      //-1 ya que si no guardaria el dia actual y no entraria en la condicion de abajo
-      //y por lo tanto la fecha no se guardaría nunca y siempre seria la actual
+      //-1 since otherwise it would save the current day and would not enter the condition below
+      //and therefore the date would never be saved and would always be the current one
       DateTime.now().year,
       prefs.getInt('LoginMes') ?? DateTime.now().month - 1,
       prefs.getInt('LoginDia') ?? DateTime.now().day - 1,
     );
 
+    //If its a new day, variables are reinitialized
     if (DateTime(now.year, now.month, now.day).isAfter(loginDate)) {
       prefs.setInt('NumLogins', 0);
       prefs.setInt('LoginMes', now.month);
@@ -892,11 +885,9 @@ class _StudentView extends State<StudentView> {
     bool shown = prefs.getBool('LogroShown') ?? false;
     bool shownLogins = prefs.getBool('LoginShown') ?? false;
 
-    //  prefs.setBool('LoginShown', false);
-    //   prefs.setInt('NumLogins', 2);
-
-    //prefs.setBool('LogroShown', false);
-
+    //Depending on the achivement the user has, it checks wether it is completed or not
+    //In case achivement is completed, puntuation is updated and a message is shown to the user
+    //indicating the points they have earned
     if (todayAchivements.value != null) {
       switch ((todayAchivements.value as Map).values.elementAt(0)['Id']) {
         case 0:
@@ -905,9 +896,6 @@ class _StudentView extends State<StudentView> {
             if (mounted) {
               showCompleteAchivement(context);
             }
-
-            print("dayPoints ${dayPoints + 100}");
-            print("totaL ${totalPoints + 100}");
 
             updatePuntos(userKey, dailyPoints + 100);
             updatePuntosTotales(userKey, totalPoints + 100);
@@ -945,6 +933,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
+  ///Gets user's points has earned every day in a week in order to show the progress in a graphic
   getPointsChart(String userKey) async {
     final List<int> puntos = [];
     final Query _points = FirebaseDatabase(
@@ -963,22 +952,17 @@ class _StudentView extends State<StudentView> {
     int lastIteration = 0;
 
     if (snapshot.exists) {
-      //Comprobamos que existe la semana
-      /**
-       * Si existe comprobamos si es una lista o un mapa, ya que
-       * si los elementos tienen key discontinuas (1,3) de vuelve un mapa
-       * en caso contrario (son continias 0,1,2) devuelve una lista
-       */
+      //Checks if the week exists in the database. If it exits checks if the information is returned as a List
+      //or as a Map as if the elements have discontinuos keys (1,3) it returns a Map but if they are continous
+      //(0,1,2) it returns a List
       if (snapshot.value is List) {
-        //print("lista");
         for (int i = 1; i < (snapshot.value as List).length && i < 6; i++) {
-          //Para cada valor de la semana
+          //For each week value
           if ((snapshot.value as List).elementAt(i) != null) {
-            //Si existe ese dia
+            //If the day exists
             if ((snapshot.value as List).elementAt(i)['Puntos'] != null) {
-              //Se comprueba si hay puntos
+              //Checks if the user has earned some points that day
               puntos.add((snapshot.value as List).elementAt(i)['Puntos']);
-              //print((snapshot.value as List).elementAt(i)['Puntos']);
             } else {
               print("No hay valor $i");
             }
@@ -987,26 +971,21 @@ class _StudentView extends State<StudentView> {
           }
         }
       } else {
-        /**
-         * si es un mapa guardo la key con mayor valor para iterar sobre todo el mapa
-         */
+        //If the elements are returned as a map, the key with biggest value is stored in order to
+        //iterate over the Map
         (snapshot.value as Map).forEach((key, value) {
           if (int.parse(key) > maxKey) {
             maxKey = int.parse(key);
           }
         });
 
-        /**
-         * para cada valor hasta maxKey, compruebo si i == key (Seria el dia)
-         * si es igual añado los puntos en esa posicion y aumento la posicion del mapa en 1
-         * si no añado 0
-         */
+        //For each value until maxKey, it checks if i == key (would be the day)
+        //if it's the same points are added in that position and map position is increased by 1
+        //otherwise 0 is added
         for (int i = 1; i <= maxKey && i < 6; i++) {
-          //print("i: $i  mapa: ${(snapshot.value as Map).keys.elementAt(lastIteration)}");
           if (i ==
               int.parse(
                   (snapshot.value as Map).keys.elementAt(lastIteration))) {
-            //print("aqui");
             puntos.add((snapshot.value as Map)
                 .values
                 .elementAt(lastIteration)['Puntos']);
@@ -1023,6 +1002,7 @@ class _StudentView extends State<StudentView> {
     return puntos;
   }
 
+  ///Widget that builds home page interface
   Widget homePage(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final Query _userTasks = FirebaseDatabase(
@@ -1037,7 +1017,6 @@ class _StudentView extends State<StudentView> {
     getLogros(userProvider.userKey);
     checkCompleteLogros(userProvider.userKey, context);
 
-    //print("SEMANAAA ${getWeekNumber()}");
 
     MediaQueryData mediaQuery = MediaQuery.of(context);
 
@@ -1047,9 +1026,12 @@ class _StudentView extends State<StudentView> {
           child: FutureBuilder(
               future: getPuntosTotales(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
+                //top bar where information such as the user's puntuation, streak or a link
+                //to achivements are displayed
                 return Row(
                   children: [
                     //* Mi puntuacion
+                    //User's puntuation
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1088,6 +1070,7 @@ class _StudentView extends State<StudentView> {
                     ),
 
                     //* Racha
+                    //User's streak
                     FutureBuilder(
                         future: getRacha(userProvider.userKey),
                         builder: (context, AsyncSnapshot<dynamic> snapshot) {
@@ -1130,26 +1113,10 @@ class _StudentView extends State<StudentView> {
                         }),
 
                     //* Logros
-
+                    //Link to user's achivements
                     GestureDetector(
                       onTap: () async {
                         _onItemTapped(2);
-                        // print("object");
-                        // await FirebaseMessaging.instance
-                        //     .subscribeToTopic("prueba3");
-                        //await NotificationService().checkPendingNotificationRequests(context);
-                        // DateTime now = DateTime.now();
-                        // DateTime noti =
-                        //     DateTime(now.year, now.month, now.day, 18, 20);
-
-                        // print("La hora es: ${noti.hour}");
-
-                        // NotificationService().scheduleNotification(
-                        //     id: 5,
-                        //     title: 'Recuerda',
-                        //     body:
-                        //         'Ya puedes completar las preguntas y conseguir puntos',
-                        //     scheduledNoti: noti);
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1189,7 +1156,7 @@ class _StudentView extends State<StudentView> {
         ),
 
         //*Dia
-
+        //Section where the current date is displayed
         Container(
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
@@ -1206,6 +1173,7 @@ class _StudentView extends State<StudentView> {
         ),
 
         //* Lista de preguntas
+        //List of questions that the user will see
         Flexible(
           child: SingleChildScrollView(
             child: Container(
@@ -1309,9 +1277,11 @@ class _StudentView extends State<StudentView> {
     );
   }
 
+  ///Widget that builds ranking interface
   Widget ranking(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-
+    
+    ///Funtion that returns positive feedback according to user globalPuntuation
     String text() {
       if (globalPoints < 1000) {
         return "Consigue más puntos para obetener la siguiente medalla.";
@@ -1382,7 +1352,6 @@ class _StudentView extends State<StudentView> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
                 }
-                print(globalPoints);
                 return Column(
                   children: [
                     const SizedBox(
@@ -1521,6 +1490,7 @@ class _StudentView extends State<StudentView> {
     );
   }
 
+  ///Widget that builds profile interface
   Widget profile(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -1554,8 +1524,8 @@ class _StudentView extends State<StudentView> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       DateTime now = DateTime.now();
       DateTime loginDate = DateTime(
-        //-1 ya que si no guardaria el dia actual y no entraria en la condicion de abajo
-        //y por lo tanto la fecha no se guardaría nunca y siempre seria la actual
+        //-1 since otherwise it would save the current day and would not enter the condition below
+        //and therefore the date would never be saved and would always be the current one
         DateTime.now().year,
         prefs.getInt('LoginMes') ?? DateTime.now().month - 1,
         prefs.getInt('LoginDia') ?? DateTime.now().day - 1,
@@ -1571,8 +1541,13 @@ class _StudentView extends State<StudentView> {
 
       Widget finalWidget = Container();
 
+      //0 would be achivement "number session logins"
+      //1 would be achivement "completed questions"
+      //If the user has completed the achivement a "tick" would be display
+      //otherwise he will see the login number or the number of questions completed
+      //and the objective he has to reach in order to complete the achivement
       switch (id) {
-        case "0": //Logro num inicios de sesion
+        case "0": 
           if (prefs.getInt('NumLogins')! < objetivo) {
             objective = "${prefs.getInt('NumLogins')}/$objetivo";
             finalWidget = Text(
@@ -1599,13 +1574,11 @@ class _StudentView extends State<StudentView> {
             );
           }
           break;
-        case "1": //Logro preguntas completadas
+        case "1": 
           if (completeQuestions.value != null) {
-            //Si hay datos
-            // print("Con datos ${(completeQuestions.value as Map).length - 1}");
-            // print("Con datos ${completeQuestions.value}");
+            //If there is data
             if ((completeQuestions.value as Map).length - 1 < objetivo) {
-              //Si no ha llegado al objetivo
+              //If user has not reach the objective
               objective =
                   "${(completeQuestions.value as Map).length - 1}/$objetivo";
               finalWidget = Text(
@@ -1613,8 +1586,8 @@ class _StudentView extends State<StudentView> {
                 style: const TextStyle(fontSize: 16),
               );
             } else {
-              //Si ha llegado al objetivo
-              objective = "$objetivo/$objetivo"; //Se pone 6/6
+              //If user has reach the objective
+              objective = "$objetivo/$objetivo"; //looks like 6/6
               finalWidget = Row(
                 children: [
                   Text(
@@ -1652,6 +1625,7 @@ class _StudentView extends State<StudentView> {
       child: Column(
         children: [
           //* Mi perfil */
+          //User's profile where the avatar you have selected will be displayed
           Container(
             width: MediaQuery.of(context).size.width,
             height: 60,
@@ -1728,7 +1702,7 @@ class _StudentView extends State<StudentView> {
           ),
 
           //* Logros */
-
+          //Section where the achivements that the user has to complete will be shown
           Container(
             width: MediaQuery.of(context).size.width,
             height: 50,
@@ -1761,7 +1735,7 @@ class _StudentView extends State<StudentView> {
           FirebaseAnimatedList(
               shrinkWrap: true,
               query:
-                  _userAchivements, //Pasar una query con los logros del dia filtrados
+                  _userAchivements, //Query with daily achivements filtered
               itemBuilder: (BuildContext context, DataSnapshot snapshot,
                   Animation<double> animation, int index) {
                 Map lista = {};
@@ -1783,8 +1757,6 @@ class _StudentView extends State<StudentView> {
                             lista['Texto']['Objetivo']),
                         builder: (context, AsyncSnapshot<dynamic> snapshot) {
                           if (snapshot.hasData) {
-                            // return Text(snapshot.data,
-                            //     style: const TextStyle(fontSize: 16));
                             return snapshot.data;
                           } else {
                             return CircularProgressIndicator();
@@ -1800,7 +1772,7 @@ class _StudentView extends State<StudentView> {
           ),
 
           //* Racha
-
+          //Section where the user's streak will be shown as well as his actual streak and some positive feedback
           Container(
             width: MediaQuery.of(context).size.width,
             height: 50,
@@ -1883,6 +1855,7 @@ class _StudentView extends State<StudentView> {
     );
   }
 
+  ///Widgets that build progress interface where a graphic is displayed
   Widget progress(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -1911,16 +1884,17 @@ class _StudentView extends State<StudentView> {
             child: FutureBuilder(
               future: getPointsChart(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                //print(snapshot.data[0]);
+                
                 if (snapshot.hasData) {
                   Map<double, double> puntos = {};
                   for (int i = 1; i < snapshot.data.length + 1; i++) {
-                    //Empieza en 1 y +1 ya que la grafica empieza en 1
+                    //Starts at 1 and +1 since the graph starts at 1
                     puntos.addAll({
                       i.toDouble(): snapshot.data[i - 1].toDouble()
-                    }); //-1 por que la lista empiza en 0
+                    }); //-1 because the list starts at 0
                   }
 
+                  //Checks the tendencie and stores positive feedback
                   Widget text = Container();
                   text = testTendencie(puntos);
 
@@ -1929,6 +1903,7 @@ class _StudentView extends State<StudentView> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width - 20,
                         height: 200,
+                        //builds the graph
                         child: LineChart(
                           LineChartData(
                             minX: 1,
@@ -1943,7 +1918,7 @@ class _StudentView extends State<StudentView> {
                                   spots: puntos.entries
                                       .map((entry) =>
                                           FlSpot(entry.key, entry.value))
-                                      .toList(), //key es el dia, value los puntos
+                                      .toList(), //key is the day, value are the points
                                   isCurved: true,
                                   preventCurveOverShooting: true,
                                   dotData: FlDotData(
@@ -1964,7 +1939,6 @@ class _StudentView extends State<StudentView> {
                                   interval: 1,
                                   showTitles: true,
                                   getTitlesWidget: (value, meta) {
-                                    //String text = '';
                                     Widget text = Container();
                                     switch (value.toInt()) {
                                       case 1:
@@ -2041,10 +2015,10 @@ class _StudentView extends State<StudentView> {
                         ),
                       ),
 
-                      //Texto
                       const SizedBox(
                         height: 20,
                       ),
+                      //shows positive feedback
                       text,
                     ],
                   );
@@ -2063,15 +2037,15 @@ class _StudentView extends State<StudentView> {
 
   @override
   Widget build(BuildContext context) {
-    //SnackBarService snackBarService = SnackBarService();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //scaffoldMessengerKey: snackBarService.scaffoldKey, //no deja abrir el texfield
       home: Scaffold(
+        //builds the appbar
         appBar: const TopBarStudentHome(
           arrow: false,
           backIndex: 0,
         ),
+        //build the bottom navigation menu
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -2111,9 +2085,9 @@ class _StudentView extends State<StudentView> {
           showUnselectedLabels: true,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          selectedItemColor: Color.fromARGB(255, 255, 249, 191),
-          unselectedItemColor: Color.fromARGB(255, 0, 0, 0),
-          unselectedIconTheme: IconThemeData(
+          selectedItemColor: const Color.fromARGB(255, 255, 249, 191),
+          unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+          unselectedIconTheme: const IconThemeData(
             color: Color.fromARGB(255, 0, 0, 0),
           ),
           currentIndex: currentPageIndex,
@@ -2128,20 +2102,18 @@ class _StudentView extends State<StudentView> {
               setState(() {
                 currentPageIndex = index;
               });
-              //snackBarService.removeSnackBar();
             },
+            //Calls the corresponding widget depending on the page selected in the bottom navigation menu
             children: _widgetOptions
                 .map((widgetFunction) => widgetFunction())
                 .toList(),
           ),
         ),
-        // body: Center(
-        //   child: _widgetOptions.elementAt(currentPageIndex),
-        // ),
       ),
     );
   }
 
+  ///Gets the questions from the database and builds the questions interface creating a list
   listQuestions(
       {required Map tareas,
       bool complete = false,
@@ -2158,13 +2130,16 @@ class _StudentView extends State<StudentView> {
             .child(tareas['key'])
             .child("Respuestas");
 
-        DateTime now = DateTime.now();
-
+        //checks if the question should be shown
+        
         int hour = checkQuestion(DateTime.now().hour, int.parse(tareas['key']));
 
+        //0 the question can be shown
+        //!=0 the question can't be shown since it's not the time
         if (hour != 0) {
           showInfoQuestion(context, hour);
         } else if (complete) {
+          //Initialization of parameteres
           initializeParameters(
               tareas["Pregunta"],
               colorList.elementAt(tareas["Color"]),
@@ -2175,8 +2150,10 @@ class _StudentView extends State<StudentView> {
               tareas['Tipo'],
               tareas['key']);
 
+          //Gets user's answers for that question
           await getAnswers(userKey, questionKey, complete);
-
+          
+          //redirects the user if they click on the question to answer it
           if (mounted) {
             Navigator.push<Widget>(
                 context,
@@ -2204,13 +2181,11 @@ class _StudentView extends State<StudentView> {
           }
         }
       },
+      //Desing for the question's block
       child: Container(
-        // margin: const EdgeInsets.all(10),
-        // padding: const EdgeInsets.all(10),
         height: 150,
         decoration: BoxDecoration(
             color: colorList.elementAt(tareas["Color"]),
-            //borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.black)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -2228,6 +2203,8 @@ class _StudentView extends State<StudentView> {
                 ),
               ),
             ),
+            //Shows the lock if the question is not available, the tick if it's completed
+            //or an empty box if the user has not completed it 
             Padding(
               padding: const EdgeInsets.only(right: 15),
               child: checkQuestion(
@@ -2264,118 +2241,119 @@ class _StudentView extends State<StudentView> {
   }
 }
 
-launchURL(DateTime now) async {
-  if (now.weekday == DateTime.friday) {
-    final Uri url = Uri.parse('https://forms.gle/pxGpkjWbtJGmdUEp7');
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
-    }
-  } else if (now.weekday != DateTime.friday) {
-    final Uri url = Uri.parse('https://forms.gle/AasrbbxGXEytjZMZA');
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-}
+// launchURL(DateTime now) async {
+//   if (now.weekday == DateTime.friday) {
+//     final Uri url = Uri.parse('https://forms.gle/pxGpkjWbtJGmdUEp7');
+//     if (!await launchUrl(url)) {
+//       throw Exception('Could not launch $url');
+//     }
+//   } else if (now.weekday != DateTime.friday) {
+//     final Uri url = Uri.parse('https://forms.gle/AasrbbxGXEytjZMZA');
+//     if (!await launchUrl(url)) {
+//       throw Exception('Could not launch $url');
+//     }
+//   }
+// }
 
-showStateDialog(BuildContext context, DateTime nowDate) {
-  Widget reminderButton = ElevatedButton(
-    style: const ButtonStyle(
-      backgroundColor:
-          MaterialStatePropertyAll(Color.fromARGB(255, 180, 179, 176)),
-    ),
-    child: const Text(
-      "RECORDAR\nMAS TARDE",
-      style: TextStyle(color: Colors.black, fontSize: 16),
-    ),
-    onPressed: () async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('Shown', false);
-      var horas = prefs.getInt('Horas');
-      prefs.setInt('Horas', horas! + 1);
+//showStateDialog(BuildContext context, DateTime nowDate) {
+  // Widget reminderButton = ElevatedButton(
+  //   style: const ButtonStyle(
+  //     backgroundColor:
+  //         MaterialStatePropertyAll(Color.fromARGB(255, 180, 179, 176)),
+  //   ),
+  //   child: const Text(
+  //     "RECORDAR\nMAS TARDE",
+  //     style: TextStyle(color: Colors.black, fontSize: 16),
+  //   ),
+  //   onPressed: () async {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     prefs.setBool('Shown', false);
+  //     var horas = prefs.getInt('Horas');
+  //     prefs.setInt('Horas', horas! + 1);
+  //  
+  //     NotificationProvider notificationProvider = NotificationProvider();
+  //     notificationProvider
+  //         .setNewNotification(DateTime.now().add(Duration(hours: 1)));
+  //     Navigator.pop(context);
+  //   },
+  // );
+  // Widget continueButton = ElevatedButton(
+  //   style: const ButtonStyle(
+  //     backgroundColor:
+  //         MaterialStatePropertyAll(Color.fromARGB(255, 140, 212, 142)),
+  //   ),
+  //   child: const Text(
+  //     "IR",
+  //     style: TextStyle(color: Colors.black, fontSize: 18),
+  //   ),
+  //   onPressed: () async {
+  //     launchURL(nowDate);
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     prefs.setBool('Shown', true);
+  //     prefs.setInt('Horas', 18);
+  //
+  //     var now = DateTime.now();
+  //
+  //     if (now.weekday == DateTime.friday) {
+  //       NotificationProvider notificationProvider = NotificationProvider();
+  //       notificationProvider
+  //           .setNewNotification(DateTime(2024, now.month, now.day + 3, 18, 00));
+  //     } else {
+  //       NotificationProvider notificationProvider = NotificationProvider();
+  //       notificationProvider
+  //           .setNewNotification(DateTime(2024, now.month, now.day + 1, 18, 00));
+  //     }
+  //
+  //     var token = Provider.of<UserProvider>(context,
+  //         listen: false); //* DESCOMENTAR PARA MONITORIZACION DE ESTUDIANTE */
+  //     await registerActivity(token.userKey, "Accede a la encuesta");
+  //
+  //     Navigator.pop(context);
+  //   },
+  // );
+  // AlertDialog alert = AlertDialog(
+  //   backgroundColor: Color.fromARGB(255, 231, 231, 231),
+  //   surfaceTintColor: Colors.transparent,
+  //   title: const Text(
+  //     "¿Como te encuentras hoy?",
+  //     textAlign: TextAlign.center,
+  //     style: TextStyle(fontSize: 20),
+  //   ),
+  //   content: nowDate.weekday == DateTime.friday
+  //       ? const Text(
+  //           "¡Recuerda completar el Resumen de la semana!",
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(fontSize: 20),
+  //         )
+  //       : const Text(
+  //           "¡Recuerda completar el Diario de aprendizaje!",
+  //           textAlign: TextAlign.center,
+  //           style: TextStyle(fontSize: 20),
+  //         ),
+  //   actions: [
+  //     Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         reminderButton,
+  //         const SizedBox(
+  //           width: 20,
+  //         ),
+  //         continueButton,
+  //       ],
+  //     )
+  //   ],
+  // );
+  //
+  // showDialog(
+  //   barrierDismissible: false,
+  //   context: context,
+  //   builder: (BuildContext context) {
+  //     return alert;
+  //   },
+  // );
+//}
 
-      NotificationProvider notificationProvider = NotificationProvider();
-      notificationProvider
-          .setNewNotification(DateTime.now().add(Duration(hours: 1)));
-      Navigator.pop(context);
-    },
-  );
-  Widget continueButton = ElevatedButton(
-    style: const ButtonStyle(
-      backgroundColor:
-          MaterialStatePropertyAll(Color.fromARGB(255, 140, 212, 142)),
-    ),
-    child: const Text(
-      "IR",
-      style: TextStyle(color: Colors.black, fontSize: 18),
-    ),
-    onPressed: () async {
-      launchURL(nowDate);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('Shown', true);
-      prefs.setInt('Horas', 18);
-
-      var now = DateTime.now();
-
-      if (now.weekday == DateTime.friday) {
-        NotificationProvider notificationProvider = NotificationProvider();
-        notificationProvider
-            .setNewNotification(DateTime(2024, now.month, now.day + 3, 18, 00));
-      } else {
-        NotificationProvider notificationProvider = NotificationProvider();
-        notificationProvider
-            .setNewNotification(DateTime(2024, now.month, now.day + 1, 18, 00));
-      }
-
-      var token = Provider.of<UserProvider>(context,
-          listen: false); //* DESCOMENTAR PARA MONITORIZACION DE ESTUDIANTE */
-      await registerActivity(token.userKey, "Accede a la encuesta");
-
-      Navigator.pop(context);
-    },
-  );
-  AlertDialog alert = AlertDialog(
-    backgroundColor: Color.fromARGB(255, 231, 231, 231),
-    surfaceTintColor: Colors.transparent,
-    title: const Text(
-      "¿Como te encuentras hoy?",
-      textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 20),
-    ),
-    content: nowDate.weekday == DateTime.friday
-        ? const Text(
-            "¡Recuerda completar el Resumen de la semana!",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20),
-          )
-        : const Text(
-            "¡Recuerda completar el Diario de aprendizaje!",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20),
-          ),
-    actions: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          reminderButton,
-          const SizedBox(
-            width: 20,
-          ),
-          continueButton,
-        ],
-      )
-    ],
-  );
-
-  showDialog(
-    barrierDismissible: false,
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}
-
+///Alllows admin to send notifications to users subscirbed to a topic
 sendNotification(String title, String description) async {
   final data = {
     'click_action': 'FLUTTER_NOTIFICATION_CLICK',
@@ -2410,6 +2388,7 @@ sendNotification(String title, String description) async {
   } catch (e) {}
 }
 
+///Builds dialog interface where admin can write a message and send it to the users
 showSendNotificationDialog(BuildContext context) {
   TextEditingController title = TextEditingController();
   TextEditingController description = TextEditingController();
@@ -2525,6 +2504,7 @@ showSendNotificationDialog(BuildContext context) {
   );
 }
 
+///Shows an alert dialog with information to the users
 showInfo(BuildContext context, int tipo, int globalPoints) {
   Widget continueButton = ElevatedButton(
     style: const ButtonStyle(
@@ -2536,12 +2516,13 @@ showInfo(BuildContext context, int tipo, int globalPoints) {
       style: TextStyle(color: Colors.black, fontSize: 16),
     ),
     onPressed: () async {
-      Navigator.of(context, rootNavigator: true).pop(); // Cerrar el AlertDialog
+      Navigator.of(context, rootNavigator: true).pop(); //close alert dialog
     },
   );
 
   Widget text = Container();
-
+  //1: shows information about how streak works and how to increase it
+  //2: shows information about how the ranking works, the user's current medal and how to get the next medal
   switch (tipo) {
     case 1:
       text = const Text(
@@ -2631,6 +2612,7 @@ showInfo(BuildContext context, int tipo, int globalPoints) {
   );
 }
 
+///Shows an alert dialog with information about questions that are not yet unlocked
 showInfoQuestion(BuildContext context, int hour) {
   Widget continueButton = ElevatedButton(
     style: const ButtonStyle(
@@ -2662,15 +2644,14 @@ showInfoQuestion(BuildContext context, int hour) {
       DateTime now = DateTime.now();
       DateTime noti = DateTime(now.year, now.month, now.day, hour);
 
-      print("La hora es: $hour");
-
+      //Sets a notification to remind the user when the question is unlock
       NotificationService().scheduleNotification(
           id: hour,
           title: 'Recuerda',
           body: 'Ya puedes completar las preguntas y conseguir puntos',
           scheduledNoti: noti);
 
-      Navigator.of(context, rootNavigator: true).pop(); // Cerrar el AlertDialog
+      Navigator.of(context, rootNavigator: true).pop(); 
     },
   );
 
@@ -2724,6 +2705,7 @@ showInfoQuestion(BuildContext context, int hour) {
   );
 }
 
+///Shows an alert dialog when the user has completed an achivement
 showCompleteAchivement(BuildContext context) {
   Widget continueButton = ElevatedButton(
     style: const ButtonStyle(
@@ -2737,7 +2719,7 @@ showCompleteAchivement(BuildContext context) {
       ),
     ),
     onPressed: () async {
-      Navigator.of(context, rootNavigator: true).pop(); // Cerrar el AlertDialog
+      Navigator.of(context, rootNavigator: true).pop();
     },
   );
 
