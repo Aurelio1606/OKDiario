@@ -8,6 +8,7 @@ class AppointmentEditor extends StatefulWidget {
 class AppointmentEditorState extends State<AppointmentEditor> {
   String? key = '';
 
+  ///Returns day intial according to [day]
   String getByday(int day) {
     switch (day) {
       case 1:
@@ -28,6 +29,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
     return '';
   }
 
+  ///Return diferrence between two days [first] and [second]
   int getDiff(int first, int second) {
     if (first > second) {
       return first - second;
@@ -36,6 +38,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
     }
   }
 
+  ///Returns an unique Id for a notification
   int generateUniqueId() {
     DateTime now = DateTime.now();
     int random = Random().nextInt(100000);
@@ -44,22 +47,12 @@ class AppointmentEditorState extends State<AppointmentEditor> {
     return uniqueId;
   }
 
+  ///builds appintment editor interface
   Widget _getAppointmentEditor(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-    // final DatabaseReference _calendarRef = FirebaseDatabase(
-    //         databaseURL:
-    //             "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-    //     .ref()
-    //     .child("Usuarios2")
-    //     .child("DatosUsuario")
-    //     .child(userProvider.userKey)
-    //     .child("CalendarData");
-
-    print("PRIMERO" + userProvider.userKey);
 
     return Container(
         color: Color.fromARGB(255, 245, 239, 216),
+        //Section to write the appointment's title 
         child: ListView(
           padding: const EdgeInsets.all(0),
           children: <Widget>[
@@ -88,29 +81,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               height: 1.0,
               thickness: 1,
             ),
-            // ListTile(
-            //     tileColor: Color.fromARGB(255, 245, 239, 216),
-            //     contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-            //     leading: Icon(
-            //       Icons.access_time,
-            //       color: Colors.black54,
-            //     ),
-            //     title: Row(children: <Widget>[
-            //       const Expanded(
-            //         child: Text('TODO EL DIA'),
-            //       ),
-            //       Expanded(
-            //           child: Align(
-            //               alignment: Alignment.centerRight,
-            //               child: Switch(
-            //                 value: _isAllDay!,
-            //                 onChanged: (bool value) {
-            //                   setState(() {
-            //                     _isAllDay = value;
-            //                   });
-            //                 },
-            //               ))),
-            //     ])),
+           //Section to set appointment's start date
             ListTile(
                 tileColor: Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -122,7 +93,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         flex: 7,
                         child: GestureDetector(
                             child: Text(
-                                //DateFormat('dd/MM/yyyy').format(_startDate!),
                                 DateFormat('EEEE', 'es')
                                     .format(_startDate!)
                                     .toUpperCase(),
@@ -224,6 +194,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                     }
                                   })),
                     ])),
+            //Section to set appointment's finish date
             ListTile(
                 tileColor: Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -235,7 +206,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         flex: 7,
                         child: GestureDetector(
                             child: Text(
-                              //DateFormat('dd/MM/yyyy').format(_endDate!),
                               DateFormat('EEEE', 'es')
                                   .format(_endDate!)
                                   .toUpperCase(),
@@ -340,6 +310,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                     }
                                   })),
                     ])),
+            //section to choose wheter to repeat the appointment or not
             ListTile(
               tileColor: Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -368,6 +339,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               ),
             ),
             if (_isRecurrence!)
+              //If the appointment will repeat, it unfolds a menu where to choose different recurrence's options
+              //it can be [daily], [weekly], [monthly] or [Personalizar]
               ListTile(
                 tileColor: Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -375,35 +348,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 title: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // DropdownButton(
-                    //   value: _count!,
-                    //   items: _valueListCount.map((item) {
-                    //     return DropdownMenuItem(
-                    //       value: item,
-                    //       child: Text('$item'),
-                    //     );
-                    //   }).toList(),
-                    //   onChanged: (item) {
-                    //     setState(() {
-                    //       _count = item;
-                    //     });
-                    //   },
-                    // ),
-                    // Text("VEZ CADA"),
-                    // DropdownButton(
-                    //   value: _interval!,
-                    //   items: _valueListInterval.map((item) {
-                    //     return DropdownMenuItem(
-                    //       value: item,
-                    //       child: Text('$item'),
-                    //     );
-                    //   }).toList(),
-                    //   onChanged: (item) {
-                    //     setState(() {
-                    //       _interval = item;
-                    //     });
-                    //   },
-                    // ),
                     Container(
                       constraints:
                           BoxConstraints(maxWidth: 300, maxHeight: 300),
@@ -431,6 +375,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                         }).toList(),
                         onChanged: (item) {
                           setState(() {
+                            //if personalizar is choseen, a new window will be display where user can chose the appointment recurrence
+                            //it can be [daily], [weekly] where they can chose the days they want for the appointment and [monthly]
                             if (item == 'PERSONALIZAR') {
                               showDialog<Widget>(
                                 context: context,
@@ -439,7 +385,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                   return _DayPicker();
                                 },
                               ).then((dynamic value) => setState(() {
-                                    print(dayNames);
                                     selectedDays = dayNames;
                                     _count = 90;
                                   }));
@@ -460,10 +405,11 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               height: 1.0,
               thickness: 1,
             ),
+            //Section that allows the user to set a reminder 
             ListTile(
                 tileColor: Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                leading: Icon(
+                leading: const Icon(
                   Icons.access_time,
                   color: Colors.black54,
                 ),
@@ -487,6 +433,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               height: 1.0,
               thickness: 1,
             ),
+            //Section that allows the user to chose appointment's color
             ListTile(
               tileColor: Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
@@ -509,10 +456,11 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               height: 1.0,
               thickness: 1,
             ),
+            //Section where the user can add a brief description about the appointment
             ListTile(
-              tileColor: Color.fromARGB(255, 245, 239, 216),
+              tileColor: const Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.all(5),
-              leading: Icon(
+              leading: const Icon(
                 Icons.subject,
                 color: Colors.black87,
               ),
@@ -523,11 +471,11 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 },
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black87,
                     fontWeight: FontWeight.w400),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText: 'DESCRIPCION',
                 ),
@@ -568,6 +516,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
+            //builds the appbar
             appBar: AppBar(
               title: const Center(
                   child: Text(
@@ -612,6 +561,9 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                             color: Colors.black,
                             size: 35,
                           ),
+                          //if the "tick" button is pressed, it will save the appointment's information in the database if it's new
+                          //or updates the information if the appointment  already existed 
+                          //the "cross" button closes the appointment editor 
                           onPressed: () async {
                             final List<Meeting> meetings = <Meeting>[];
                             if (_selectedAppointment != null) {
@@ -624,18 +576,9 @@ class AppointmentEditorState extends State<AppointmentEditor> {
 
                               key = _selectedAppointment!
                                   .location; //* ARREGLAR LOCATION, ALMACENAR KEY EN OTRO CAMPO */
-                              print(_selectedAppointment!.id);
+                              
 
                               final DatabaseReference _updateRef;
-                              // = FirebaseDatabase(
-                              //         databaseURL:
-                              //             "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-                              //     .ref()
-                              //     .child("Usuarios2")
-                              //     .child("DatosUsuario")
-                              //     .child(userProvider.userKey)
-                              //     .child("CalendarData")
-                              //     .child(key!);
 
                               if (chosenCalendar == '1') {
                                 _updateRef = FirebaseDatabase(
@@ -655,7 +598,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                     .child("Usuarios2")
                                     .child("CalendarData")
                                     .child(key!);
-                                ;
+                                
                               }
 
                               _updateRef.update({
@@ -720,22 +663,23 @@ class AppointmentEditorState extends State<AppointmentEditor> {
 
                                   final nextDays = selectedNoti.map((dia) {
                                     return daysNames[dia] ??
-                                        dia; // Usa el nombre completo si está disponible, de lo contrario, deja la abreviatura.
+                                        dia; // Uses the full name if it is available, otherwise leave the abbreviation
                                   });
 
                                   String startTimeFormatted = '';
                                   String endTimeFormatted = '';
                                   int notID;
-
-                                  print("debajo");
+                                  
+                                  //Sets a appointment's reminder for the days that have been choosen
                                   nextDays.forEach((element) {
                                     if ((element as int) <
                                         _startDate!.weekday) {
                                       //* PARA EL CASO EN QUE SE COJA UN DIA MENOR AL DIA ACTUAL */
+                                      //For the case in which a day is less than the current day
                                       element += 7;
                                       finalNotification = _startDate;
                                     }
-                                    //print(element);
+                                    
                                     if (_startDate!.weekday == element) {
                                       notID = generateUniqueId();
                                       _calendarRef
@@ -747,18 +691,21 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                         "ID": notID,
                                       });
 
+                                      //notification will be set 10 minutes before to remind the user
                                       finalNotification = _startDate!
-                                          .add(Duration(minutes: -10));
-
+                                          .add(const Duration(minutes: -10));
+                                      
+                                      //formats start and finash hour and minutes 
                                       startTimeFormatted =
                                           "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}";
                                       endTimeFormatted =
                                           "${_endTime!.hour.toString().padLeft(2, '0')}:${_endTime!.minute.toString().padLeft(2, '0')}";
-
+                                      
+                                      //Sets the notification 
                                       NotificationService()
                                           .periodicWeeklyNotification(
                                               id:
-                                                  notID, //* PENSAR FORMA DE PONER EL ID PARA QUE NO COINCIDAN */
+                                                  notID, 
                                               title: '¡Recuerda!',
                                               body:
                                                   "$_subject de $startTimeFormatted a $endTimeFormatted",
@@ -898,7 +845,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
 
                                   final nextDays = selectedNoti.map((dia) {
                                     return daysNames[dia] ??
-                                        dia; // Usa el nombre completo si está disponible, de lo contrario, deja la abreviatura.
+                                        dia; // Uses the full name if it is available, otherwise leave the abbreviation
                                   });
 
                                   String startTimeFormatted = '';
@@ -910,10 +857,11 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                     if ((element as int) <
                                         _startDate!.weekday) {
                                       //* PARA EL CASO EN QUE SE COJA UN DIA MENOR AL DIA ACTUAL */
+                                      //For the case in which a day is less than the current day
                                       element += 7;
                                       finalNotification = _startDate;
                                     }
-                                    //print(element);
+                                   
                                     if (_startDate!.weekday == element) {
                                       notID = generateUniqueId();
                                       _calendarRef
@@ -936,7 +884,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                       NotificationService()
                                           .periodicWeeklyNotification(
                                               id:
-                                                  notID, //* PENSAR FORMA DE PONER EL ID PARA QUE NO COINCIDAN */
+                                                  notID, 
                                               title: '¡Recuerda!',
                                               body:
                                                   "$_subject de $startTimeFormatted a $endTimeFormatted",
@@ -947,6 +895,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                           _startDate!.weekday, element as int);
 
                                       notID = generateUniqueId();
+                                      //Saves in the database the notification Ids
                                       _calendarRef
                                           .child(key!)
                                           .child("notIDs")
@@ -1017,6 +966,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                 children: <Widget>[_getAppointmentEditor(context)],
               ),
             ),
+            //Trash button to remove the selected appointment
             floatingActionButton: _selectedAppointment == null
                 ? const Text('')
                 : Container(
@@ -1026,7 +976,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                       child: FloatingActionButton(
                         onPressed: () {
                           if (_selectedAppointment != null) {
-                            //_events!.appointments?.removeAt(_events!.appointments!.indexOf(_selectedAppointment));
                             _events!.appointments?.removeWhere((meeting) =>
                                 meeting.from ==
                                     _selectedAppointment?.startTime &&
@@ -1039,15 +988,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                 listen: false);
 
                             final DatabaseReference _removeRef;
-                            // = FirebaseDatabase(
-                            //         databaseURL:
-                            //             "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-                            //     .ref()
-                            //     .child("Usuarios2")
-                            //     .child("DatosUsuario")
-                            //     .child(userProvider.userKey)
-                            //     .child("CalendarData")
-                            //     .child(key!);
 
                             if (chosenCalendar == '1') {
                               _removeRef = FirebaseDatabase(
@@ -1070,12 +1010,6 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                             }
 
                             _removeRef.remove();
-
-                            // try{
-                            //   await _removeRef.remove();
-                            // }catch(e){
-                            //   print("Error");
-                            // }
 
                             _events?.notifyListeners(
                                 CalendarDataSourceAction.remove,
@@ -1103,7 +1037,8 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     ),
                   )));
   }
-
+  
+  ///Returns appointmet's title
   String getTitle() {
     return _subject.isEmpty ? 'New event' : 'Event details';
   }

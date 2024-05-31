@@ -497,7 +497,6 @@ class _StudentView extends State<StudentView> {
           ),
         ],
       );
-      //return 'Puedes esforzarte un poquito más. Ánimo';
     } else if (puntos.length == 1 && puntos.values.first != 0) {
       return Column(
         children: [
@@ -590,7 +589,6 @@ class _StudentView extends State<StudentView> {
           ),
         ],
       );
-      //return 'Completa preguntas y logros para ver tu progreso. !Ánimo!';
     }
   }
 
