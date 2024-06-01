@@ -718,7 +718,6 @@ class _StudentView extends State<StudentView> {
 
     if (DateTime.now().day != rachaDate.day) {
       if (DateTime.now().day - 1 == rachaDate.day) {
-        print("DIAS DISTINTOS");
 
         racha = prefs.getInt('Racha') ?? 0;
         prefs.setInt('Racha', racha += 1);

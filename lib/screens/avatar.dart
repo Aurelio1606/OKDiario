@@ -14,12 +14,16 @@ class Avatar extends StatefulWidget {
 }
 
 class _Avatar extends State<Avatar> {
+  ///User's current puntuation
   int totalPoints = 0;
+  ///User's avaible avatars
   List<bool> seleccionado = [];
+  ///Index of user's current avatar
   int? currentSelected;
 
   @override
   void initState() {
+    //Initialization of [currentSelected] with user's current avatar
     if (widget.avatarSelected >= 0) {
       currentSelected = widget.avatarSelected;
     } else {
@@ -28,8 +32,7 @@ class _Avatar extends State<Avatar> {
     super.initState();
   }
 
-//Funcion que devuelve una lista con los avatares desbloqueados
-
+  ///Gets user unlocked avatars from database and returns them as a list
   getUnlockAvatars(String userKey) async {
 
     final Query _unlockAvatars = FirebaseDatabase(
@@ -44,12 +47,9 @@ class _Avatar extends State<Avatar> {
     DataSnapshot snapshot = await _unlockAvatars.get();
     List index = [];
 
-    /**
-     * En caso de que el usuario no tenga avatares, se incluye -1 a la lista
-     * (para evitar flickering en la lista de avatares)
-     * Si tienes avatares, se devuelve una lista con los indices de los avatares
-     */
-
+    //In case user has no unlock avatars, -1 is added to the list to avoid flickering
+    //If user has avatars, a list is returned with the avatars indexes
+    //Database can return a list (if indexes are continuos) or a map (if indexes are discontinous)
     if (snapshot.value == null) {
       index.add(-1);
     } else {
@@ -62,7 +62,6 @@ class _Avatar extends State<Avatar> {
         });
       } else {
         (snapshot.value as Map).forEach((key, value) {
-          print(value['Indice']);
           index.add(value['Indice']);
         });
       }
@@ -71,6 +70,7 @@ class _Avatar extends State<Avatar> {
     return index;
   }
 
+  ///Updates user's puntuation in the database
   updatePuntosTotales(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
@@ -85,6 +85,7 @@ class _Avatar extends State<Avatar> {
     });
   }
 
+  ///Gets user's puntuation from the database and returns it
   getPuntosTotales(String userKey) async {
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
@@ -94,14 +95,14 @@ class _Avatar extends State<Avatar> {
         .child("DatosUsuario")
         .child(userKey);
 
+    //Listens for user's puntuation changes
     _totalPoints.onValue.listen((event) {
       var snapshot = event.snapshot;
-      //print((snapshot.value as Map)['PuntosTotal']);
       if (snapshot.value != null) {
         if ((snapshot.value as Map)['PuntosTotal'] != null) {
           var newPoints = (snapshot.value as Map)['PuntosTotal'];
+          //Use of 'if' to avoid set state to excute multiple times
           if (newPoints != totalPoints && mounted) {
-            //If para evitar que se ejecute multiples veces el set state
             setState(() {
               totalPoints = (snapshot.value as Map)['PuntosTotal'];
             });
@@ -111,6 +112,7 @@ class _Avatar extends State<Avatar> {
     });
   }
 
+  ///Shows an alert dialog to confirm if user want to buy a certain avatar
   showBuyConfirmation(BuildContext context, String index, String userKey,
       String enlace, int precio) {
     final DatabaseReference _avatars = FirebaseDatabase(
@@ -122,6 +124,8 @@ class _Avatar extends State<Avatar> {
         .child(userKey)
         .child("Avatar");
 
+    //'Continuar' button. If the user press it, their score will be updated and 
+    //the avatar will be add to the unlocked list in the database
     Widget continueButton = ElevatedButton(
       style: const ButtonStyle(
         backgroundColor:
@@ -141,7 +145,7 @@ class _Avatar extends State<Avatar> {
         });
         setState(() {});
         Navigator.of(context, rootNavigator: true)
-            .pop(); // Cerrar el AlertDialog
+            .pop(); //close the AlertDialog
       },
     );
 
@@ -156,6 +160,7 @@ class _Avatar extends State<Avatar> {
           RichText(
             text: TextSpan(
               children: [
+                //Confirmation message to make sure the user want that avatar
                 TextSpan(
                     text:
                         "Seguro que quieres desbloquear este avatar por $precio  ",
@@ -205,7 +210,8 @@ class _Avatar extends State<Avatar> {
       },
     );
   }
-
+  
+  ///Shows and alert dialog when the user has not enough points to buy an avatar
   showNotPoints(BuildContext context) {
     Widget continueButton = ElevatedButton(
       style: const ButtonStyle(
@@ -218,7 +224,7 @@ class _Avatar extends State<Avatar> {
       ),
       onPressed: () async {
         Navigator.of(context, rootNavigator: true)
-            .pop(); // Cerrar el AlertDialog
+            .pop(); //close the AlertDialog
       },
     );
 
@@ -277,6 +283,7 @@ class _Avatar extends State<Avatar> {
     );
   }
 
+  ///Widget that returns a grid with all available avatars in the app from database and the ones that the user has unlocked
   Widget getAvatar(String userKey) {
     final DatabaseReference _saveAvatar = FirebaseDatabase(
             databaseURL:
@@ -288,7 +295,7 @@ class _Avatar extends State<Avatar> {
         .child("AvatarSeleccionado");
 
     return StreamBuilder(
-        //StreamBuilder para obtener todos los avatares disponibles y su precio
+        //StreamBuilder to obtain all available avatars and their price
         stream: FirebaseDatabase(
                 databaseURL:
                     "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -309,18 +316,16 @@ class _Avatar extends State<Avatar> {
             getUnlockAvatars(userKey);
 
             return FutureBuilder(
-                //Future builder para obtener los avatares desbloqueados de cada usuario
+                //Future builder to get the user's unlocked avatars 
                 future: getUnlockAvatars(
-                    userKey), //Funcion que devuelve una lista de los avatares desbloquedos
+                    userKey), 
                 builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                  //Si tiene datos (se añade el -1 para evitar el flickerin en este paso, si no tuviera nada habria flickering)
+                  //If it has data(-1 is added to avoid flickering, if it was empty there would be flickering)
                   if (snapshot.hasData) {
-                    //Utilizamos el menos -1 para filtrar, si es -1 quiere decir que no hay datos
-                    //y por lo tanto no se hace el for, ya que si no da error
-                    //print(snapshot.data);
+                    //-1 is used to filter, if it is -1 there will be no data and so we skip the for to avoid an error
                     if (snapshot.data[0] != -1) {
                       for (int i = 0; i < (snapshot.data as List).length; i++) {
-                        // para cada avatar desbloqueado lo ponemos en el mapa de todos los avatares a true
+                        //For each unlocked avatar we put it on the map of all avatars to true
                         map['Properties'][int.parse(snapshot.data[i])]
                             ['Desbloqueado'] = true;
                       }
@@ -337,9 +342,8 @@ class _Avatar extends State<Avatar> {
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
-                              //Tap si picho en la imagen
-                              // print(index);
-                              // print(currentSelected);
+                              //If user tap on the image and the avatar is unlocked
+                              //it is selected and saved in the database
                               setState(() {
                                 if (currentSelected != index &&
                                     map['Properties'][index]['Desbloqueado']) {
@@ -359,6 +363,8 @@ class _Avatar extends State<Avatar> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  //shows avatars's image that are not unlocked 
+                                  //in this case a lock appears to show it is not unlocked
                                   if (!map['Properties'][index]['Desbloqueado'])
                                     Expanded(
                                       child: Stack(
@@ -366,6 +372,7 @@ class _Avatar extends State<Avatar> {
                                         children: [
                                           Image.network(
                                             map['Properties'][index]['Enlace'],
+                                            //makes it a little transparent
                                             opacity:
                                                 const AlwaysStoppedAnimation(
                                                     .5),
@@ -381,6 +388,8 @@ class _Avatar extends State<Avatar> {
                                         ],
                                       ),
                                     ),
+                                  //shows avatars's image that are unlocked
+                                  //in this case there is no lock to show it is unlock
                                   if (map['Properties'][index]['Desbloqueado'])
                                     Expanded(
                                       child: Stack(
@@ -400,7 +409,8 @@ class _Avatar extends State<Avatar> {
                                                     onChanged: (bool? value) {
                                                       setState(() {
                                                         if (value == true) {
-                                                          //Tap si pincho en la checkbox
+                                                          //If user tap on the checkbox and the avatar is unlocked
+                                                          //it is selected and saved in the database
                                                           currentSelected =
                                                               index;
                                                           _saveAvatar.update({
@@ -430,10 +440,9 @@ class _Avatar extends State<Avatar> {
                                         style: ButtonStyle(
                                           elevation:
                                               MaterialStateProperty.all(5),
-                                          // alignment: Alignment.centerLeft,
                                           backgroundColor:
                                               MaterialStateProperty.all(
-                                                  Color.fromARGB(
+                                                  const Color.fromARGB(
                                                       255, 157, 151, 202)),
                                           shape: MaterialStateProperty.all(
                                               RoundedRectangleBorder(
@@ -448,10 +457,11 @@ class _Avatar extends State<Avatar> {
                                           ),
                                         ),
                                         onPressed: () {
-                                          //Tap si pincho en el boton
+                                          //If user tap on the button and the avatar is not unlocked
+                                          //it is selected and saved in the database
                                           if (!map['Properties'][index]
                                               ['Desbloqueado']) {
-                                            //si no esta desbloqueado
+                                            //If it is not unlocked and has enough points shows an alert dialog
                                             if (totalPoints >=
                                                 map['Properties'][index]
                                                     ['Precio']) {
@@ -463,10 +473,12 @@ class _Avatar extends State<Avatar> {
                                                       ['Enlace'],
                                                   map['Properties'][index]
                                                       ['Precio']);
-                                            } else {
+                                            } else { //if user has no enough points
                                               showNotPoints(context);
                                             }
                                           } else {
+                                            //If user tap on the button and the avatar is unlocked
+                                          //it is selected and saved in the database
                                             setState(() {
                                               if (currentSelected != index) {
                                                 currentSelected = index;
@@ -490,6 +502,7 @@ class _Avatar extends State<Avatar> {
                                               const SizedBox(
                                                 width: 10,
                                               ),
+                                              //shows a different text depending on wheter the avatar is unlocked or not
                                               Text(
                                                 !map['Properties'][index]
                                                         ['Desbloqueado']
@@ -527,16 +540,16 @@ class _Avatar extends State<Avatar> {
                       ),
                     );
                   } else {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                 });
           }
-          print(snapshot);
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         });
   }
 
   @override
+  //build avatars's shop interface
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     return Scaffold(
@@ -555,12 +568,12 @@ class _Avatar extends State<Avatar> {
                   child: Container(
                     decoration: BoxDecoration(
                         color: Colors.blue[200],
-                        //borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.black)),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         //* Mi puntuacion
+                        //Section with user puntuation
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -579,7 +592,7 @@ class _Avatar extends State<Avatar> {
                                 Text(
                                   totalPoints.toString(),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 17),
+                                  style: const TextStyle(fontSize: 17),
                                 ),
                                 const SizedBox(
                                   width: 5,
