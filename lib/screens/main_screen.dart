@@ -7,6 +7,7 @@ class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
+  //builds the first app's screen, where users can choose between log in or register.
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -27,7 +28,7 @@ class MainScreen extends StatelessWidget {
                       minimumSize:
                           MaterialStateProperty.all(const Size(250, 80)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 153, 147, 199)),
+                          const Color.fromARGB(255, 153, 147, 199)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       )),
@@ -40,6 +41,7 @@ class MainScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       NavigatorState navigator = Navigator.of(context);
+                      //redirects the user to the login screen
                       navigator.push(MaterialPageRoute(builder: (context) {
                         return const Login();
                       }));
@@ -89,7 +91,7 @@ class MainScreen extends StatelessWidget {
                       minimumSize:
                           MaterialStateProperty.all(const Size(250, 80)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 153, 147, 199)),
+                          const Color.fromARGB(255, 153, 147, 199)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       )),
@@ -102,6 +104,7 @@ class MainScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       NavigatorState navigator = Navigator.of(context);
+                      //redirects the user to the register screen
                       navigator.push(MaterialPageRoute(builder: (context) {
                         return const Register();
                       }));

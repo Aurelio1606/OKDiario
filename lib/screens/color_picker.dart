@@ -9,9 +9,10 @@ class _ColorPicker extends StatefulWidget {
 
 class _ColorPickerState extends State<_ColorPicker> {
   @override
+  //builds an interface that returns a list to choose appointment colors
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Color.fromARGB(255, 245, 239, 216),
+      backgroundColor: const Color.fromARGB(255, 245, 239, 216),
       content: Container(
           width: double.maxFinite,
           child: ListView.builder(
@@ -32,7 +33,6 @@ class _ColorPickerState extends State<_ColorPicker> {
                     _selectedColorIndex = index;
                   });
 
-                  // ignore: always_specify_types
                   Future.delayed(const Duration(milliseconds: 200), () {
                     // When task is over, close the dialog
                     Navigator.pop(context);

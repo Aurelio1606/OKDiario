@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/screens/home_estudent.dart';
 import 'package:proyecto/screens/home_selection.dart';
 import 'package:proyecto/screens/provider.dart';
 import 'package:proyecto/services/operations.dart';
@@ -35,6 +34,8 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+  ///Get user's name and password stored in the device so they only have to enter the name
+  ///and password the first time
   void loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -101,6 +102,7 @@ class _LoginState extends State<Login> {
                           width: 2,
                         ),
                       ),
+                      //Allow user to show or hide the password
                       suffixIcon: IconButton(
                         icon: visible
                             ? const Icon(Icons.visibility_off)
@@ -126,7 +128,7 @@ class _LoginState extends State<Login> {
                       minimumSize:
                           MaterialStateProperty.all(const Size(250, 80)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 153, 147, 199)),
+                          const Color.fromARGB(255, 153, 147, 199)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       )),
@@ -141,11 +143,11 @@ class _LoginState extends State<Login> {
                       showDialog(
                         context: context,
                         barrierDismissible:
-                            false, // Evita que el usuario cierre el diálogo tocando fuera de él
+                            false, //Prevent the user from closing the dialog by tapping outside of it
                         builder: (BuildContext context) {
                           return const Center(
                             child:
-                                CircularProgressIndicator(), // Indicador de carga
+                                CircularProgressIndicator(), //Charge indicator
                           );
                         },
                       );
@@ -161,20 +163,20 @@ class _LoginState extends State<Login> {
                               Provider.of<UserProvider>(context, listen: false);
                           token.setUserKey(key);
 
-                          // print("UserKey");
-                          // print(token.userKey);
-
                           await registerActivity(
                               token.userKey, "Inicio de sesion");
 
                           if (token.userKey.isNotEmpty) {
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();
+                            
+                            //Saves user's name and password in the device's sharedPreferences
                             prefs.setString(
                                 'Usuario', userName.text.toLowerCase().trim());
                             prefs.setString('Contraseña',
                                 password.text.toLowerCase().trim());
 
+                            //gets achivement day stored in the device
                             var now = DateTime.now();
                             DateTime achivementDate = DateTime(
                               now.year,
@@ -182,30 +184,27 @@ class _LoginState extends State<Login> {
                               prefs.getInt('LogroDia') ?? now.day,
                             );
 
+                            //if achivement day is equal to current day, it increases the number of times the user logs in
                             if (achivementDate.day == now.day) {
                               var numLogins = prefs.getInt('NumLogins') ?? 1;
                               prefs.setInt('NumLogins', numLogins += 1);
                             }
 
-                            // Simular retraso de 500 milisegundos
+                            //Simulate 500 miliseconds delay
                             await Future.delayed(
                                 const Duration(milliseconds: 500));
 
-                            // Redirigir HomeStudent
-
-                            // Cerrar el indicador de carga
+                            //Close charge indicator
                             Navigator.of(context, rootNavigator: true).pop();
 
                             Navigator.of(context)
                                 .push(MaterialPageRoute(builder: (context) {
-                              return HomeSelection(
-                                  //userKey: key,
-                                  //userType: userName.text.toLowerCase().trim(),
-                                  );
+                              return const HomeSelection();
                             }));
                           }
                         } else {
                           if (context.mounted) {
+                            //shows an alert if user name or password is incorrect
                             snackBarService.showSnackBar(
                                 content: "Usuario o contraseña incorrecta");
                             Navigator.of(context, rootNavigator: true).pop();

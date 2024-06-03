@@ -5,7 +5,6 @@ import 'package:proyecto/screens/app_lifecycle.dart';
 import 'package:proyecto/screens/home_estudent.dart';
 import 'package:proyecto/screens/provider.dart';
 import 'package:proyecto/screens/home_teacher.dart';
-import 'package:proyecto/services/operations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeSelection extends StatefulWidget {
@@ -25,15 +24,11 @@ class _HomeSelectionState extends State<HomeSelection> {
   @override
   void initState() {
     super.initState();
-    //NotificationProvider notificationProvider = NotificationProvider();
-    //notificationProvider.initNotifications();
 
     WidgetsBinding.instance.addObserver(
         LifeCycleHandler(resumenCallBack: () async => _refreshContent()));
 
     checkHour();
-    //getToken();
-    //updateDependencies();
 
     getUserType().then((results) {
       setState(() {
@@ -42,45 +37,10 @@ class _HomeSelectionState extends State<HomeSelection> {
         }
       });
     });
-    //FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   }
 
-  // void updateDependencies() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  //   PackageInfo packageInfo = await PackageInfo.fromPlatform();
-
-  //   String version = packageInfo.version;
-  //   String lastVersion = prefs.getString('Version') ?? version;
-
-  //   if (lastVersion != version) {
-  //     print("Actualizamos shared preferences");
-  //     print("version $version");
-  //     print("version $lastVersion");
-  //     prefs.setString('Version', version);
-  //   } else {
-  //     print("No actualiazamons");
-  //     print("version $version");
-  //     print("version $lastVersion");
-  //     prefs.setString('Version', version);
-  //   }
-  // }
-
-  // void getToken() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   bool subscrito = prefs.getBool('subscrito') ?? false;
-  //   if (!subscrito) {
-  //     final fcmToken = await FirebaseMessaging.instance.getToken();
-  //     //await FirebaseMessaging.instance.subscribeToTopic("Recordatorio");
-  //     await FirebaseMessaging.instance
-  //         .subscribeToTopic("RecordatorioPollSemana");
-  //     await FirebaseMessaging.instance
-  //         .subscribeToTopic("RecordatorioPollViernes");
-  //     prefs.setBool('subscrito', true);
-  //     print(fcmToken);
-  //   }
-  // }
-
+  ///When the app is opened after being closed or minimized, this function compares the current hour with
+  ///the hour and minutes the user's device has stored to show an alert.
   void _refreshContent() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool show = prefs.getBool('Shown') ?? false;
@@ -109,8 +69,8 @@ class _HomeSelectionState extends State<HomeSelection> {
         var pollDateInterval2 =
             DateTime(2024, now.month, now.day, horas, minutos + 30);
 
-        print(show);
-        print(minutos);
+        //if the alert has not yet been shown, if it is not the weekend and the current hour is bigger than or equal
+        //to the one stored in the device, the alert is shown
         if (!show) {
           if (now.weekday != DateTime.saturday &&
               now.weekday != DateTime.sunday) {
@@ -120,7 +80,6 @@ class _HomeSelectionState extends State<HomeSelection> {
                   //showStateDialog(context, now);
                 });
 
-                print("Aqui");
                 prefs.setBool('Shown', true);
               }
             }
@@ -130,6 +89,8 @@ class _HomeSelectionState extends State<HomeSelection> {
     }
   }
 
+  ///This function checks current hour with the one stored in the device, such as function _refreshContent(). 
+  ///The difference is this function is called when the user changes between pages in the app 
   checkHour() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool show = prefs.getBool('Shown') ?? false;
@@ -143,17 +104,6 @@ class _HomeSelectionState extends State<HomeSelection> {
       prefs.getInt('Dia') ?? now.day,
     );
 
-    // print("Primero ${DateTime(2024, now.month, now.day)}");
-    // print("Segundo ${DateTime(2024, lastDate.month, lastDate.day)}");
-
-    // print(prefs.getInt('Mes') ?? now.month);
-    // print(prefs.getInt('Dia') ?? now.day);
-    // print(lastDate);
-
-    // print(DateTime(2024, lastDate.month, lastDate.day-1));
-    // print(DateTime(2024, now.month, now.day)
-    //     .isAfter(DateTime(2024, lastDate.month, lastDate.day)));
-
     if (DateTime(2024, now.month, now.day)
         .isAfter(DateTime(2024, lastDate.month, lastDate.day))) {
       prefs.setBool('Shown', false);
@@ -161,18 +111,13 @@ class _HomeSelectionState extends State<HomeSelection> {
       prefs.setInt('Dia', now.day);
     }
 
-    print(horas);
-    print(show);
-    print(minutos);
+    //if the alert has not yet been shown, if it is not the weekend and the current hour is bigger than or equal
+    //to the one stored in the device, the alert is shown
     if (!show) {
       var pollDateInterval1 =
           DateTime(2024, now.month, now.day, horas, minutos);
       var pollDateInterval2 =
           DateTime(2024, now.month, now.day, horas, minutos + 30);
-
-      print(now);
-      print("INtervalor 1 $pollDateInterval1");
-      print(pollDateInterval2);
 
       if (now.weekday != DateTime.saturday && now.weekday != DateTime.sunday) {
         if (now.isAfter(pollDateInterval1)) {
@@ -180,18 +125,16 @@ class _HomeSelectionState extends State<HomeSelection> {
             Future.delayed(Duration(seconds: 2), () {
               //showStateDialog(context, now);
             });
-            print("Aqui");
             prefs.setBool('Shown', true);
-            //show = true;
           }
         }
       }
     }
   }
 
+  ///Gets user type (admin, student) from the database and returns it
   getUserType() async {
     UserProvider userProvider = UserProvider();
-    String? user = await getUser(userProvider.userKey);
     final DatabaseReference _userType = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -202,29 +145,24 @@ class _HomeSelectionState extends State<HomeSelection> {
         .child("TipoUsuario");
 
     DataSnapshot snapshot = await _userType.get();
-    print(snapshot.value.toString());
 
     return snapshot.value.toString();
   }
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   timer?.cancel();
-  // }
 
   @override
+  //Depending on the user type, it returns the student or admin view
   Widget build(BuildContext context) {
     if (userType == null) {
-      //Espera hasta que carga el usuario
+      //waits until userType is ready
       return Center(
         child: Container(),
       );
     }
 
     if (userType == 'admin') {
-      return TeacherView();
+      return const TeacherView();
     } else {
-      return StudentView();
+      return const StudentView();
     }
   }
 }

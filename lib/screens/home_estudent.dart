@@ -161,7 +161,7 @@ class _StudentView extends State<StudentView> {
     return ((to.difference(from).inDays + firstDay.weekday) / 7).ceil();
   }
 
-  ///Gets user's dailyPoints from database
+  ///Gets user's dailyPoints from database using its userkey [userKey]
   getPuntos(String userKey) async {
     final DatabaseReference _dailyPoints = FirebaseDatabase(
             databaseURL:
@@ -183,7 +183,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  ///Gets actual user's puntuation from database
+  ///Gets actual user's puntuation from database using its userkey [userKey]
   getPuntosTotales(String userKey) async {
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
@@ -205,7 +205,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  ///Gets points user has earned overall from database
+  ///Gets points user has earned overall from database using its userkey [userKey]
   getGlobalPuntuation(String userKey) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
             databaseURL:
@@ -680,7 +680,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-  ///Gets daily and total points and update then adding up 50 points
+  ///Gets daily and total points and update then adding up 50 points 
   updateRachaPoints(String userKey) async {
     getPuntos(userKey).then((_) {
       updatePuntos(userKey, dailyPoints + 50);

@@ -1,5 +1,6 @@
 part of event_calendar;
 
+///Widgets's list with the weekdays name
 const List<Widget> days = <Widget>[
   Text('LUNES', style: TextStyle(color: Colors.black),),
   Text('MARTES', style: TextStyle(color: Colors.black),),
@@ -9,16 +10,6 @@ const List<Widget> days = <Widget>[
   Text('SABADO', style: TextStyle(color: Colors.black),),
   Text('DOMINGO', style: TextStyle(color: Colors.black),),
 ];
-
-// void initializaDays(){
-//   for(int i = 0; i < days.length; i++){
-//     if(i == _selectedAppointment!.startTime.day){
-//       _selectedDays[i] = true;
-//     }else{
-//       _selectedDays[i] = false;
-//     }
-//   }
-// }
 
 class _DayPicker extends StatefulWidget {
   @override
@@ -36,6 +27,7 @@ class _DayPickerState extends State<_DayPicker> {
     initializeDays();
   }
 
+  ///Returns a boolean list with the selected days by the user
   void initializeDays() {
     _selectedDays.clear();
     for (int i = 0; i < days.length; i++) {
@@ -47,6 +39,7 @@ class _DayPickerState extends State<_DayPicker> {
     }
   }
 
+  ///Returns day's initials according to week day [day]
   String getByday(int day) {
     switch (day) {
       case 0:
@@ -67,6 +60,7 @@ class _DayPickerState extends State<_DayPicker> {
     return '';
   }
 
+  ///Returns day name according to day initials [day]
   String getDayName(String day) {
     switch (day) {
       case 'MO':
@@ -88,12 +82,12 @@ class _DayPickerState extends State<_DayPicker> {
   }
 
   @override
+  //builds the interface that allows user to pick the appointments's recurrence
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: EdgeInsets.all(5),
-      backgroundColor: Color.fromARGB(255, 245, 239, 216),
+      contentPadding: const EdgeInsets.all(5),
+      backgroundColor: const Color.fromARGB(255, 245, 239, 216),
       content: Container(
-          
           width: double.maxFinite,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -101,22 +95,8 @@ class _DayPickerState extends State<_DayPicker> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  children: [
-                    // DropdownButton(
-                    //   value: _count!,
-                    //   items: _valueListCount.map((item) {
-                    //     return DropdownMenuItem(
-                    //       value: item,
-                    //       child: Text('$item'),
-                    //     );
-                    //   }).toList(),
-                    //   onChanged: (item) {
-                    //     setState(() {
-                    //       _count = item;
-                    //     });
-                    //   },
-                    // ),
-                    Text("REPETIR CADA",
+                  children: [              
+                    const Text("REPETIR CADA",
                     style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),),
                     DropdownButton(
                       value: _interval!,
@@ -132,6 +112,7 @@ class _DayPickerState extends State<_DayPicker> {
                         });
                       },
                     ),
+                    //DropdownButton with different options of recurrence, return the appointment's frequency
                     DropdownButton(
                       value: _freqDayPicker!,
                       items: _valueListDayPickerFreq.map((item) {
@@ -142,7 +123,7 @@ class _DayPickerState extends State<_DayPicker> {
                               : ((item == 'WEEKLY')
                                   ? Text(
                                       "${_interval == 1 ? 'SEMANA' : 'SEMANAS'}")
-                                  : Text("MESES")),
+                                  : const Text("MESES")),
                         );
                       }).toList(),
                       onChanged: (item) {
@@ -154,11 +135,13 @@ class _DayPickerState extends State<_DayPicker> {
                   ],
                 ),
               ),
+              //If appointment's frequency is weekly, it displays a list with the weekdays to allow user
+              //choose which days it will repeat
               if (_freqDayPicker == 'WEEKLY')
                 Column(
                   children: [
                     const Padding(
-                      padding: const EdgeInsets.only(
+                      padding: EdgeInsets.only(
                           top: 12, bottom: 12, right: 150),
                       child: Padding(
                         padding: EdgeInsets.only(left: 10),
@@ -202,7 +185,9 @@ class _DayPickerState extends State<_DayPicker> {
                           onPressed: () {
                             byDayChain = '';
                             dayNames = '';
-                        
+
+                            //for each day picked by the user, it builds a string with days's initials
+                            //and another string with the days names 
                             for (int i = 0; i < days.length; i++) {
                               if (_selectedDays[i]) {
                                 byDayChain += getByday(i) + ',';
@@ -222,16 +207,13 @@ class _DayPickerState extends State<_DayPicker> {
                         
                             _freq = _freqDayPicker;
                             _byDay = byDayChain;
-                        
-                            print(byDayChain);
-                            print(dayNames);
-                        
+
                             Future.delayed(const Duration(milliseconds: 100), () {
                               // When task is over, close the dialog
                               Navigator.pop(context);
                             });
                           },
-                          child: Text("CONFIRMAR", style: TextStyle(color: Colors.black),),
+                          child: const Text("CONFIRMAR", style: TextStyle(color: Colors.black),),
                         ),
                       ),
                     )
