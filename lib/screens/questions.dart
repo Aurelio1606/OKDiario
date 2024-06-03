@@ -1,31 +1,39 @@
-import 'dart:io';
-
 import 'package:circle_list/circle_list.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto/screens/home_estudent.dart';
 import 'package:proyecto/screens/provider.dart';
-import 'package:proyecto/screens/task.dart';
-import 'package:proyecto/services/operations.dart';
 import 'package:proyecto/services/snackBar.dart';
 import 'package:proyecto/widgets/widget_top_homeStudent.dart';
 
 class Questions extends StatefulWidget {
+  const Questions({super.key});
+
   @override
-  _Questions createState() => _Questions();
+  State<Questions> createState() => _Questions();
 }
 
 class _Questions extends State<Questions> {
   int cont = 0;
+
+  ///saves user's write answer
   final TextEditingController respuesta = TextEditingController();
 
+  ///List with answer to multiple choice questions
   List<String?> isChecked = [];
+
+  ///List of emojis selected
   List<bool?> imageIsMarked = [];
+
+  ///choosen answer's index
   int? currentIndex;
+
+  ///controller for page view
   PageController? _pageController;
+
+  ///List of indexes of the selected emojis
   List<int?> selectedImages = [];
 
   @override
@@ -46,14 +54,16 @@ class _Questions extends State<Questions> {
     indexField.clear();
   }
 
+  ///Returns the number of answers to a question
   getNumAnswers(Query answers) async {
     DataSnapshot snapshot = await answers.get();
 
-    //Devuelvo -1 para que al final de la lista se añada el campo de escribir y el boton
-    //independientemente del numero de respuestas
+    //tam -1 so that the writing field and the button are added to the end of the list
+    //regardless of the number od responses
     return (snapshot.value as Map).length - 1;
   }
 
+  ///Returns current week number
   int getWeekNumber() {
     final now = DateTime.now();
     final firstDay = DateTime(now.year, 1, 1);
@@ -63,6 +73,7 @@ class _Questions extends State<Questions> {
     return ((to.difference(from).inDays + firstDay.weekday) / 7).ceil();
   }
 
+  ///Returns a list with the images's names the user has choosen
   getImageName(List<bool?> images) {
     List<String> names = [
       'Calmado',
@@ -77,6 +88,8 @@ class _Questions extends State<Questions> {
 
     List<String> selectedNames = [];
 
+    //If an image is choosen by the user (is true in selectedNames) the name for that image
+    //is stored in selectedImages according to the index for the list declared aboved
     if (images.isNotEmpty) {
       for (int i = 0; i < images.length; i++) {
         if (images[i] == true) {
@@ -89,6 +102,7 @@ class _Questions extends State<Questions> {
     return selectedNames;
   }
 
+  ///Updates totalPoints in the database
   updatePuntosTotales(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
@@ -103,6 +117,7 @@ class _Questions extends State<Questions> {
     });
   }
 
+  ///Updates dailyPoints in the database
   updatePuntos(String userKey, int updatePoints) async {
     final DatabaseReference _updateDailyPoints = FirebaseDatabase(
             databaseURL:
@@ -121,6 +136,7 @@ class _Questions extends State<Questions> {
     });
   }
 
+  ///Updates globalPoints in the database
   updateGlobalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
             databaseURL:
@@ -135,6 +151,8 @@ class _Questions extends State<Questions> {
     });
   }
 
+  ///Saves the answer [argument], the write fiel [text] and the question index [index]
+  ///using the user key [userKey] nad the question key [questionKey] in the database
   saveAnswer(String userKey, dynamic argument, String questionKey, String text,
       dynamic index) {
     final DatabaseReference _saveAnswer = FirebaseDatabase(
@@ -170,6 +188,8 @@ class _Questions extends State<Questions> {
           });
   }
 
+  ///Builds the interface for the answers to the questions, returning a list of the answers
+  ///and allowing the user to pick one or multiple answers.
   listQuestions(
       {required Map tareas, required int index, String questionKey = ""}) {
     Map<int, String> imageMap = {
@@ -194,8 +214,7 @@ class _Questions extends State<Questions> {
         padding: const EdgeInsets.all(5),
         height: 80,
         decoration: BoxDecoration(
-            color: Color.fromARGB(
-                255, 247, 236, 194), //Color.fromARGB(255, 157, 217, 221)
+            color: const Color.fromARGB(255, 247, 236, 194),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.black, width: 1.5)),
         child: Row(
@@ -211,7 +230,8 @@ class _Questions extends State<Questions> {
             Expanded(
               child: Text(
                 tareas["respuesta"],
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -225,9 +245,9 @@ class _Questions extends State<Questions> {
                             color: Colors.black,
                             width: 1.5,
                           )),
-                  checkColor: Color.fromARGB(255, 0, 0, 0),
-                  activeColor: Color.fromARGB(255, 101, 196, 104),
-                  shape: CircleBorder(side: BorderSide(width: 1)),
+                  checkColor: const Color.fromARGB(255, 0, 0, 0),
+                  activeColor: const Color.fromARGB(255, 101, 196, 104),
+                  shape: const CircleBorder(side: BorderSide(width: 1)),
                   value: currentIndex == index,
                   onChanged: (bool? value) {
                     setState(() {
@@ -247,6 +267,8 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///Builds a writing field's interface for each question, where user can enter
+  ///alternative answer
   Widget writeField() {
     return Container(
       margin: const EdgeInsets.all(5),
@@ -288,14 +310,15 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///builds the complete interface button, updates the points and saves the answer in the database
   Widget completeButton(dynamic argument, dynamic correctArgument,
       String userKey, String questionKey, SnackBarService snackBarService) {
     return ElevatedButton(
       onPressed: () {
         if (argument == correctArgument) {
-          //Si es la pregunta del circulo
+          //If is the emotiosn question
           if (argument is List) {
-            //Si la lista no tiene ningun true y el texto esta vacio
+            //If the list has no true strored and the text is empty
             if (!(argument as List).any((element) => element == true) &&
                 respuesta.text.isEmpty) {
               snackBarService.showSnackBar(content: "COMPLETA LA PREGUNTA");
@@ -317,18 +340,6 @@ class _Questions extends State<Questions> {
                   return const StudentView();
                 }));
               }
-              // print("COMPLETADA $questionComplete");
-              // updatePuntosTotales(userKey, totalPuntuation + 100);
-              // updatePuntos(userKey, dayPoints + 100);
-              // updateGlobalPoints(userKey, globalPuntuation + 100);
-
-              // print("OEQWEQW $selectedImages");
-
-              // saveAnswer(userKey, argument, questionKey, respuesta.text,
-              //     selectedImages);
-              // //respuesta.clear();
-
-              // showRightDialog(context, _pageController!);
             }
           } else {
             if (argument.isEmpty && respuesta.text.isEmpty) {
@@ -351,14 +362,15 @@ class _Questions extends State<Questions> {
               }
             }
           }
-
-          print("argumento $argument");
         } else {
+          //for the multiple choice questions,
+          //if user has a wrong choice and the text field is empty, an alert is shown
           if (respuesta.text.isEmpty && argument.isNotEmpty) {
             showWrongDialog(context);
           } else if (respuesta.text.isEmpty) {
             snackBarService.showSnackBar(content: "COMPLETA LA PREGUNTA");
           } else {
+            //If user has not picked a choice but has written an answer
             if (!questionComplete) {
               updatePuntosTotales(userKey, totalPuntuation + 100);
               updatePuntos(userKey, dayPoints + 100);
@@ -369,7 +381,8 @@ class _Questions extends State<Questions> {
             } else {
               saveAnswer(
                   userKey, argument, questionKey, respuesta.text, currentIndex);
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+              Navigator.of(context)
+                  .pushReplacement(MaterialPageRoute(builder: (context) {
                 return const StudentView();
               }));
             }
@@ -399,6 +412,7 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///Builds the interface for the multiple choices questions
   Widget testQuestion(String userKey, String questionType, String questionKey,
       SnackBarService snackBarService) {
     Map<int, String> placeMap = {
@@ -414,10 +428,8 @@ class _Questions extends State<Questions> {
     String place = "";
     String correctPlace = "default";
 
-    /**
-     * Primero hago un futureBuilder para obtener el numero de respuesta
-     * Una vez que tengo el numero construyo la lista
-     */
+    //futureBuilder to get the response number
+    //then it build the list
     return Container(
       child: Flexible(
         child: FutureBuilder(
@@ -435,19 +447,18 @@ class _Questions extends State<Questions> {
                       cont++;
 
                       isChecked.add(tareas[
-                          'respuesta']); //Lista con las respuesta de las preguntas tipo test
+                          'respuesta']); //List with the answers to multiple choice questions
 
+                      //If any are selected
                       if (currentIndex != null) {
-                        //Si hay alguna seleccionada
-
+                        //if the list is smaller than the selected one (all responses have not been loaded yet)
                         if (currentIndex! < isChecked.length) {
-                          //si la lista es menor que la seleccionada, (todavia no han cargado todas las respuestas)
                           place = isChecked[
-                              currentIndex!]!; //espera, si la lista es mayor, se marca la respuesta seleccionada
+                              currentIndex!]!; //waits, if the list is longer, the selected answer is marked
                         }
-
+                        
+                        //if so that it is only checked from monday to thursday
                         if (DateTime.now().weekday < 5) {
-                          //if para que solo se compruebe de lunes a jueves
                           questionKey == '1'
                               ? correctPlace = placeMap[DateTime.now().weekday]!
                               : correctPlace = placeMap[DateTime.now()
@@ -510,7 +521,6 @@ class _Questions extends State<Questions> {
       'assets/images/emotions/emocionado.png': 'Emocionado',
     };
 
-    print(indexField);
     while (imageIsMarked.length <= imagesMap.length) {
       bool marked = indexField.contains(contador);
 

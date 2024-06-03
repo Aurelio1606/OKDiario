@@ -11,8 +11,8 @@ class NotificationProvider extends ChangeNotifier {
 
   NotificationProvider._internal();
 
+  ///Schedules a new notification at time [actual]
   void setNewNotification(DateTime actual) {
-    //var scheduleNot = actual.add(Duration(hours: 1));
     NotificationService().scheduleNotification(
       id: 1,
       title: '¿Como te encuentras hoy?',
@@ -23,14 +23,14 @@ class NotificationProvider extends ChangeNotifier {
     );
   }
 
-  void initNotifications() {
-    var first = DateTime.now();
-    var scheduleNot = DateTime(2024, first.month, first.day, 18, 00);
-    NotificationService().periodicDailyNotification(
-      id: 1,
-      title: '¿Como te encuentras hoy?',
-      body: '¡Recuerda completar el Diario de aprendizaje!',
-      scheduledNoti: scheduleNot,
-    );
-  }
+  // void initNotifications() {
+  //   var first = DateTime.now();
+  //   var scheduleNot = DateTime(2024, first.month, first.day, 18, 00);
+  //   NotificationService().periodicDailyNotification(
+  //     id: 1,
+  //     title: '¿Como te encuentras hoy?',
+  //     body: '¡Recuerda completar el Diario de aprendizaje!',
+  //     scheduledNoti: scheduleNot,
+  //   );
+  // }
 }

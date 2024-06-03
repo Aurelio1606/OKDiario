@@ -39,7 +39,7 @@ class StudentView extends StatefulWidget {
 
   const StudentView({super.key, this.page = 0});
   @override
-  _StudentView createState() => _StudentView();
+  State<StudentView> createState() => _StudentView();
 }
 
 ///Class that displays student view on the app
@@ -622,7 +622,7 @@ class _StudentView extends State<StudentView> {
     });
   }
 
-  ///Update totalPoints in the database
+  ///Updates totalPoints in the database
   updatePuntosTotales(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
