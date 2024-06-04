@@ -1,7 +1,6 @@
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-//import 'package:googleapis/tasks/v1.dart';
 import 'package:proyecto/screens/task_editor.dart';
 import 'package:proyecto/services/notifications.dart';
 import 'package:proyecto/widgets/widget_top_initial.dart';
@@ -10,6 +9,8 @@ import 'package:proyecto/screens/provider.dart';
 import 'package:provider/provider.dart';
 
 class LoadTasks extends StatelessWidget {
+  const LoadTasks({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -48,6 +49,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
     super.initState();
   }
 
+  ///Checks if the first date [date1] is smaller than the second date [date2]
   compareDates(DateTime date1, DateTime date2) {
     if (date1.day < date2.day) {
       if (date1.month <= date2.month) {
@@ -59,6 +61,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
   }
 
   @override
+  //Builds tasks interface where user can add new tasks, complete or delete them
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final Query _userTasks = FirebaseDatabase(
@@ -88,9 +91,10 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
         height: 70,
         width: 70,
         child: FittedBox(
+          //Button to add a new task
           child: FloatingActionButton(
             splashColor: Colors.black,
-            backgroundColor: Color.fromARGB(255, 231, 231, 231),
+            backgroundColor: const Color.fromARGB(255, 231, 231, 231),
             child: const Column(
               children: [
                 Icon(
@@ -105,6 +109,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
               ],
             ),
             onPressed: () {
+              //variables initialization for a new task
               taskName = '';
               description = '';
               key = '';
@@ -114,17 +119,18 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
               delete = false;
               id = 0;
 
+              //Redirects user to task editor
               Navigator.push<Widget>(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => TaskEditor()),
+                    builder: (BuildContext context) => const TaskEditor()),
               );
             },
           ),
         ),
       ),
       body: Container(
-        color: Color.fromARGB(255, 245, 239, 216),
+        color: const Color.fromARGB(255, 245, 239, 216),
         height: double.infinity,
         child: FirebaseAnimatedList(
             query: _userTasks,
@@ -133,12 +139,14 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
               Map tareas = snapshot.value as Map;
               tareas['key'] = snapshot.key;
 
+              //checks if a task deadline has passed to delete it from the tasks list 
+              //and mark it as not completed in the database
               if (compareDates(
                   DateTime.tryParse(tareas["EndDate"])!, DateTime.now())) {
                 timeOut = true;
                 endDate = DateTime.now(); 
 
-                _completeTask.child(tareas['key']).update({ //*No estaba asignando bien la variable de key */
+                _completeTask.child(tareas['key']).update({
                   "Key": tareas['key'],
                   "Nombre": taskName,
                   "Descripcion": description,
@@ -153,8 +161,11 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
               } else if (tareas["Completada"] ||
                   tareas["Eliminada"] ||
                   tareas["TimeOut"]) {
+                    //if the task is marked as completed, deleted or timeout it is not displayed
+                    //in the tasks list
                 return Container();
               } else {
+                //tasks list
                 return listItem(tareas: tareas);
               }
             }),
@@ -165,6 +176,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
   Widget listItem({required Map tareas}) {
     return InkWell(
       onTap: () {
+        //variable initialization if the task already existed
         taskName = tareas["Nombre"];
         description = tareas["Descripcion"];
         key = tareas["Key"];
@@ -173,10 +185,11 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
         complete = tareas["Completada"];
         delete = tareas["Eliminada"];
         id = tareas["Id"];
-
+        
+        //Redirects user to task editor
         Navigator.push<Widget>(
           context,
-          MaterialPageRoute(builder: (BuildContext context) => TaskEditor()),
+          MaterialPageRoute(builder: (BuildContext context) => const TaskEditor()),
         );
       },
       child: Container(
@@ -190,6 +203,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //build tasks interface using the information retrieve from the database
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -199,7 +213,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
                     Text(
                       tareas["Nombre"],
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(
                       height: 5,
@@ -212,7 +226,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
                     Text(
                       tareas["Descripcion"],
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(
                       height: 5,
@@ -231,7 +245,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
                       DateFormat('EEEE, d/M/y', 'es')
                           .format(DateTime.parse(tareas["EndDate"])),
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     // No hay Expanded aquí, para evitar que el contenido crezca infinitamente
                   ],
@@ -250,6 +264,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    //Button to mark the task as completed
                     IconButton(
                       onPressed: () {
                         showCompleteDialog(context, tareas["Key"], tareas["Id"]);
@@ -264,6 +279,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
                       style: TextStyle(
                           color: Color.fromARGB(255, 0, 0, 0), fontSize: 13),
                     ),
+                    //Button to delete the task
                     IconButton(
                       onPressed: () {
                         showAlertDialog(context, tareas["Key"], tareas["Id"]);
@@ -289,6 +305,7 @@ class LoadTasksDataFromFireBase extends State<LoadTasksData> {
   }
 }
 
+///Shows an alert dialog to confirm if the user want to delete the task
 showAlertDialog(BuildContext context, String key, int cancelId) {
   Widget cancelButton = ElevatedButton(
     style: const ButtonStyle(
@@ -326,7 +343,8 @@ showAlertDialog(BuildContext context, String key, int cancelId) {
       timeOut = false;
       complete = false;
       delete = true;
-
+      //if the user delete the task it is saved in the database as 'eliminada' to
+      //know that the user deleted it
       _deleteTask.child(key).set({
         "Key": key,
         "Nombre": taskName,
@@ -338,7 +356,7 @@ showAlertDialog(BuildContext context, String key, int cancelId) {
         "Id": cancelId,
       });
 
-      print("ID NOTI $cancelId");
+      //deletes reminder associated to the task
       NotificationService().cancelSpecificNotifications(cancelId);
 
       Navigator.pop(context);
@@ -374,6 +392,7 @@ showAlertDialog(BuildContext context, String key, int cancelId) {
   );
 }
 
+///Shows an alert dialog to confirm if the user want to complete the task
 showCompleteDialog(BuildContext context, String key, int cancelId) {
   Widget cancelButton = ElevatedButton(
     style: const ButtonStyle(
@@ -399,11 +418,10 @@ showCompleteDialog(BuildContext context, String key, int cancelId) {
     ),
     onPressed: () {
       showFinalDialog(context, key, cancelId);
-      //Navigator.pop(context);
     },
   );
   AlertDialog alert = AlertDialog(
-    backgroundColor: Color.fromARGB(255, 231, 231, 231),
+    backgroundColor: const Color.fromARGB(255, 231, 231, 231),
     surfaceTintColor: Colors.transparent,
     content: const Text(
       "¿Has completado la tarea?",
@@ -432,6 +450,7 @@ showCompleteDialog(BuildContext context, String key, int cancelId) {
   );
 }
 
+///Shows an alert dialog when the user confim the completation of a task ans shows positive feedback
 showFinalDialog(BuildContext context, String key, int cancelId) {
   Widget continueButton = ElevatedButton(
     style: const ButtonStyle(
@@ -457,6 +476,7 @@ showFinalDialog(BuildContext context, String key, int cancelId) {
       complete = true;
       delete = false;
 
+      //Saves the task as 'completada' in the database
       _deleteTask.child(key).set({
         "Key": key,
         "Nombre": taskName,
@@ -468,7 +488,7 @@ showFinalDialog(BuildContext context, String key, int cancelId) {
         "Id": cancelId,
       });
 
-      print("ID NOTI $cancelId");
+      //deletes reminder associated to the task
       NotificationService().cancelSpecificNotifications(cancelId);
 
       Navigator.pop(context);

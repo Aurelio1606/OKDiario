@@ -507,9 +507,11 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///Builds the interface for the emotions question
   Widget circleQuestion(String userKey, String questionType, String questionKey,
       SnackBarService snackBarService) {
     int contador = 0;
+    ///Map with images routes and name of the images of emotions
     Map<String, String> imagesMap = {
       'assets/images/emotions/calmado.png': 'Calmado',
       'assets/images/emotions/confundido.png': 'Confundido',
@@ -521,6 +523,7 @@ class _Questions extends State<Questions> {
       'assets/images/emotions/emocionado.png': 'Emocionado',
     };
 
+    //Stores 'true' in the corresponding position if the user has picked an image 
     while (imageIsMarked.length <= imagesMap.length) {
       bool marked = indexField.contains(contador);
 
@@ -535,11 +538,10 @@ class _Questions extends State<Questions> {
           children: [
             CircleList(
               outerRadius:
-                  183, //ajustar el tamaño del circulo, para que no se solape abajo
+                  183, //adjust the size of the circle, so that it does not overlap below
               initialAngle: 0,
               dragAngleRange: DragAngleRange(0, 0),
-              origin: Offset(0, 0),
-              //outerCircleColor: Colors.amber,
+              origin: const Offset(0, 0),
               centerWidget: const Text(
                 "Selecciona como te encuentras hoy",
                 textAlign: TextAlign.center,
@@ -553,23 +555,23 @@ class _Questions extends State<Questions> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
+                        //Select or deselect an image
                         imageIsMarked[index] = !imageIsMarked[index]!;
-                        //isMarked = !isMarked;
                       });
-                      print(imagesMap[images]!);
                     },
                     child: Container(
                       width: 90,
                       height: 90,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
-                        //border: Border.all(width: 1, color: Colors.black),
+                        //if the user tap on an image, the image is undelined yellow so the user knows
+                        //they have selected that image
                         color: imageIsMarked[index]!
-                            ? Color.fromARGB(255, 250, 228, 130)
+                            ? const Color.fromARGB(255, 250, 228, 130)
                             : Colors.transparent,
                       ),
                       child: Transform.translate(
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                         child: Column(
                           children: [
                             Image.asset(
@@ -579,7 +581,7 @@ class _Questions extends State<Questions> {
                             ),
                             Text(
                               imagesMap[images]!,
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              style: const TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -590,7 +592,7 @@ class _Questions extends State<Questions> {
               }).toList(),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 15),
+              padding: const EdgeInsets.only(top: 10, bottom: 15),
               child: writeField(),
             ),
             Align(
@@ -607,12 +609,13 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///Builds interface for questions that only have a write field
   Widget writeQuestion(String userKey, String questionType, String questionKey,
       SnackBarService snackBarService) {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.all(5),
+          margin: const EdgeInsets.all(5),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -621,6 +624,7 @@ class _Questions extends State<Questions> {
               ),
               TextField(
                 maxLines: 5,
+                //controller that stores the user's answer in respuesta
                 controller: respuesta,
                 decoration: InputDecoration(
                   filled: true,
@@ -637,7 +641,7 @@ class _Questions extends State<Questions> {
                     ),
                   ),
                 ),
-                style: TextStyle(color: Colors.black, fontSize: 18),
+                style: const TextStyle(color: Colors.black, fontSize: 18),
               ),
               const SizedBox(
                 height: 20,
@@ -678,19 +682,16 @@ class _Questions extends State<Questions> {
                   padding: const EdgeInsets.only(left: 8, right: 8),
                   child: Text(
                     question,
-                    style: TextStyle(fontSize: 25),
+                    style: const TextStyle(fontSize: 25),
                   ),
                 ),
               ),
             ),
 
-            /**
-             * 0 -> circulo emociones
-             * 1 -> tipo test
-             * 2 -> campo de escribir
-             */
-
-            //Cuerpo de la pregunta
+            //Type of questions
+            //0 -> emotions circle question
+            //1 -> multiple choice question
+            //2 -> write field question
             if (questionType == '0')
               circleQuestion(userProvider.userKey, questionType, questionKey,
                   snackBarService),
@@ -706,6 +707,7 @@ class _Questions extends State<Questions> {
     );
   }
 
+  ///shows an alert dialog when the user answers a question correctly.
   showRightDialog(BuildContext context, PageController pageController) {
     Widget continueButton = ElevatedButton(
       style: const ButtonStyle(
@@ -719,7 +721,7 @@ class _Questions extends State<Questions> {
       onPressed: () async {
         respuesta.clear();
         Navigator.of(context, rootNavigator: true)
-            .pop(); // Cerrar el AlertDialog
+            .pop(); //close the AlertDialog
 
         Navigator.pushAndRemoveUntil(
           context,
@@ -743,20 +745,21 @@ class _Questions extends State<Questions> {
             // },
           ), // Página principal
           (Route<dynamic> route) =>
-              false, // Eliminar todas las rutas restantes de la pila
+              false, //Remove all remaining routes from the stack
         );
       },
     );
 
     AlertDialog alert = AlertDialog(
-      contentPadding: EdgeInsets.all(5),
-      insetPadding: EdgeInsets.all(10),
-      backgroundColor: Color.fromARGB(255, 231, 231, 231),
+      contentPadding: const EdgeInsets.all(5),
+      insetPadding: const EdgeInsets.all(10),
+      backgroundColor: const Color.fromARGB(255, 231, 231, 231),
       surfaceTintColor: Colors.transparent,
       title: Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Row(
           children: [
+            //Positive feedback
             Image.asset(
               "assets/images/confeti.png",
               width: 60,
@@ -778,6 +781,7 @@ class _Questions extends State<Questions> {
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          //the points that the user has earned
           const Text(
             "Has conseguido 100",
             textAlign: TextAlign.center,
@@ -787,7 +791,7 @@ class _Questions extends State<Questions> {
             width: 10,
           ),
           Transform.translate(
-            offset: Offset(0, -3),
+            offset: const Offset(0, -3),
             child: Image.asset(
               "assets/images/estrella.png",
               width: 30,
@@ -819,6 +823,7 @@ class _Questions extends State<Questions> {
   }
 }
 
+///shows an alert dialog when the user answer a question wrong
 showWrongDialog(BuildContext context) {
   Widget continueButton = ElevatedButton(
     style: const ButtonStyle(
@@ -835,8 +840,8 @@ showWrongDialog(BuildContext context) {
   );
 
   AlertDialog alert = AlertDialog(
-    contentPadding: EdgeInsets.all(5),
-    backgroundColor: Color.fromARGB(255, 231, 231, 231),
+    contentPadding: const EdgeInsets.all(5),
+    backgroundColor: const Color.fromARGB(255, 231, 231, 231),
     surfaceTintColor: Colors.transparent,
     title: const Padding(
       padding: EdgeInsets.only(bottom: 12),
@@ -849,6 +854,7 @@ showWrongDialog(BuildContext context) {
     content: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        //positive feedback
         const Text(
           "¡No te preocupes,\n sigue intentándolo",
           textAlign: TextAlign.center,

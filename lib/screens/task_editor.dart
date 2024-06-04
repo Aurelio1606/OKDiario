@@ -17,13 +17,15 @@ class TaskEditor extends StatefulWidget {
 }
 
 class TaskEditorState extends State<TaskEditor> {
+  ///Builds the editor interface for the tasks, where users can add the task name, its finalitation date
+  ///and a description 
   Widget _getTaskEditor(BuildContext context) {
     return Container(
-      color: Color.fromARGB(255, 245, 239, 216),
+      color: const Color.fromARGB(255, 245, 239, 216),
       child: ListView(
         children: <Widget>[
           ListTile(
-            tileColor: Color.fromARGB(255, 245, 239, 216),
+            tileColor: const Color.fromARGB(255, 245, 239, 216),
             contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
             leading: const Text(''),
             title: TextField(
@@ -48,7 +50,7 @@ class TaskEditorState extends State<TaskEditor> {
             thickness: 1,
           ),
           ListTile(
-            tileColor: Color.fromARGB(255, 245, 239, 216),
+            tileColor: const Color.fromARGB(255, 245, 239, 216),
             contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
             leading: const Text(''),
             title: TextField(
@@ -73,7 +75,7 @@ class TaskEditorState extends State<TaskEditor> {
             thickness: 1,
           ),
           ListTile(
-              tileColor: Color.fromARGB(255, 245, 239, 216),
+              tileColor: const Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
               leading: const Text(''),
               title: Row(
@@ -97,11 +99,12 @@ class TaskEditorState extends State<TaskEditor> {
                                 .format(endDate!)
                                 .toUpperCase(),
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 25),
+                            style: const TextStyle(fontSize: 25),
                           ),
                         ],
                       ),
                       onTap: () async {
+                        //Date picker for the tasks
                         final DateTime? date = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
@@ -149,6 +152,7 @@ class TaskEditorState extends State<TaskEditor> {
   }
 
   @override
+  //builds the tasks interface where list of tasks is displayed
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -162,6 +166,7 @@ class TaskEditorState extends State<TaskEditor> {
         .child("TaskData");
 
     SnackBarService snackBarService = SnackBarService();
+    ///Generate an unique Id for each task
     int generateUniqueId() {
       DateTime now = DateTime.now();
       int random = Random().nextInt(100000) + 200000;
@@ -182,7 +187,7 @@ class TaskEditorState extends State<TaskEditor> {
             ),
           ),
           toolbarHeight: 100,
-          backgroundColor: Color.fromARGB(255, 157, 151, 202),
+          backgroundColor: const Color.fromARGB(255, 157, 151, 202),
           leadingWidth: 75,
           leading: Padding(
             padding: const EdgeInsets.all(6.0),
@@ -220,11 +225,14 @@ class TaskEditorState extends State<TaskEditor> {
                         size: 35,
                       ),
                       onPressed: () async {
+                        //if task name field or description filed are not empty
                         if (taskName.isNotEmpty || description.isNotEmpty) {
+                          //if it is a new task
                           if (key.isEmpty) {
                             var newkey = _taskRef.push().key!;
                             var id = generateUniqueId();
 
+                              //Adds the new task in the database
                             _taskRef.child(newkey).set({
                               "Key": newkey,
                               "Nombre": taskName,
@@ -236,6 +244,7 @@ class TaskEditorState extends State<TaskEditor> {
                               "Completada": complete,
                               "Id": id,
                             }).then((_) {
+                              //shows a confirmation message
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('AÑADIDO CORRECTAMENTE')));
@@ -245,33 +254,35 @@ class TaskEditorState extends State<TaskEditor> {
 
                             var now = DateTime.now();
 
+                            //Notifications for the tasks
                             if (endDate!.day != now.day) {
-                              if (endDate!.day == now.day + 1) {
-                                print('es mañana');
-                                print(endDate!.add(Duration(hours: 16)));
+                              //if the task is due tomorrow a reminder is set at 4 pm
+                              if (endDate!.day == now.day + 1) {                              
                                 NotificationService().scheduleNotification(
                                     id: id,
                                     title: '¡Recuerda!',
                                     body: 'Tienes tarea: $taskName',
                                     scheduledNoti:
-                                        endDate!.add(Duration(hours: 16)));
+                                        endDate!.add(const Duration(hours: 16)));
                               } else {
-                                print('no es mañana');
-                                print(endDate!
-                                    .add(Duration(days: -1, hours: 16)));
+                                //if the task is not due tomorrow the reminder is set one day 
+                                //before it ends
                                 NotificationService().scheduleNotification(
                                     id: id,
                                     title: '¡Recuerda!',
                                     body: 'Tienes tarea: $taskName',
                                     scheduledNoti: endDate!
-                                        .add(Duration(days: -1, hours: 16)));
+                                        .add(const Duration(days: -1, hours: 16)));
                               }
                             } else {
+                              //if the task is due today, there is no reminder
                               print('es hoy');
                             }
 
                             Navigator.pop(context);
                           } else {
+                            //if the key was not empty it means the task already existed so the user updates it
+                            //and the changes are saved in the database
                             _taskRef.child(key).set({
                               "Key": key,
                               "Nombre": taskName,
@@ -283,6 +294,7 @@ class TaskEditorState extends State<TaskEditor> {
                               "Completada": complete,
                               "Id": id,
                             }).then((_) {
+                              //Confirmation message
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
@@ -293,34 +305,35 @@ class TaskEditorState extends State<TaskEditor> {
 
                             var now = DateTime.now();
 
+                            //same logic as when creating a new task
                             if (endDate!.day != now.day) {
+                              //if the task is due tomorrow a reminder is set at 4 pm
                               if (endDate!.day == now.day + 1) {
-                                print('es mañana');
-                                print(endDate!.add(Duration(hours: 16)));
                                 NotificationService().scheduleNotification(
                                     id: id,
                                     title: '¡Recuerda!',
                                     body: 'Tienes tarea: $taskName',
                                     scheduledNoti:
-                                        endDate!.add(Duration(hours: 16)));
+                                        endDate!.add(const Duration(hours: 16)));
                               } else {
-                                print('no es mañana');
-                                print(endDate!
-                                    .add(Duration(days: -1, hours: 16)));
+                                //if the task is not due tomorrow the reminder is set one day 
+                                //before it ends
                                 NotificationService().scheduleNotification(
                                     id: id,
                                     title: '¡Recuerda!',
                                     body: 'Tienes tarea: $taskName',
                                     scheduledNoti: endDate!
-                                        .add(Duration(days: -1, hours: 16)));
+                                        .add(const Duration(days: -1, hours: 16)));
                               }
                             } else {
+                              //if the task is due today, there is no reminder
                               print('es hoy');
                             }
 
                             Navigator.pop(context);
                           }
                         } else {
+                          //if the fields are empty it shows an alert
                           snackBarService.showSnackBar(
                               content: "PON NOMBRE O DESCRIPCION A LA TAREA");
                         }

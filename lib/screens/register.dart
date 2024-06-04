@@ -13,10 +13,19 @@ class Register extends StatefulWidget {
 }
 
 class _LoginState extends State<Register> {
+  ///Controller for the user name text field
   TextEditingController userName = TextEditingController();
+
+  ///Controller for the user second name text field
   TextEditingController userSecondName = TextEditingController();
+
+  ///Controller for the user password text field
   TextEditingController password = TextEditingController();
+
+  ///Controller for the user password text field
   TextEditingController repeatPassword = TextEditingController();
+
+  ///Controller for the user email text field
   TextEditingController email = TextEditingController();
   bool visible = true;
   bool visible2 = true;
@@ -32,6 +41,7 @@ class _LoginState extends State<Register> {
   }
 
   @override
+  //Builds user registration screen interface
   Widget build(BuildContext context) {
     SnackBarService snackBarService = SnackBarService();
     return MaterialApp(
@@ -175,6 +185,7 @@ class _LoginState extends State<Register> {
                         ),
                       ),
                       suffixIcon: IconButton(
+                        //Allows user to show or hide the password
                         icon: visible
                             ? const Icon(Icons.visibility_off)
                             : const Icon(Icons.visibility),
@@ -209,6 +220,7 @@ class _LoginState extends State<Register> {
                           width: 2,
                         ),
                       ),
+                      //checks if both passwords are the same
                       errorText:
                           passwordOK ? null : "LAS CONTRASEÑAS NO SON IGUALES",
                       errorBorder: OutlineInputBorder(
@@ -226,6 +238,7 @@ class _LoginState extends State<Register> {
                         ),
                       ),
                       suffixIcon: IconButton(
+                        //Allows user to show or hide the password
                         icon: visible2
                             ? const Icon(Icons.visibility_off)
                             : const Icon(Icons.visibility),
@@ -250,7 +263,7 @@ class _LoginState extends State<Register> {
                       minimumSize:
                           MaterialStateProperty.all(const Size(250, 80)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 153, 147, 199)),
+                          const Color.fromARGB(255, 153, 147, 199)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       )),
@@ -262,7 +275,7 @@ class _LoginState extends State<Register> {
                       ),
                     ),
                     onPressed: () async {
-                      
+                      //Checks if the email is valid and if the passwords are the same
                       if (EmailValidator.validate(email.text) &&
                           ((password.text.toLowerCase() ==
                                   repeatPassword.text.toLowerCase()) &&
@@ -272,22 +285,31 @@ class _LoginState extends State<Register> {
                             userSecondName.text.toLowerCase().trim(),
                             password.text.toLowerCase().trim(),
                             email.text.toLowerCase().trim());
+
                         NavigatorState navigator = Navigator.of(context);
+                        //Redirects the user to the login screen
                         navigator.push(MaterialPageRoute(builder: (context) {
                           return const Login();
                         }));
                       } else if (userName.text.toLowerCase().trim().isEmpty) {
+                        //if the user has not complete the name field shows an alert
                         snackBarService.showSnackBar(
                             content: "PON TU NOMBRE DE USUARIO");
-                      } else if(userSecondName.text.toLowerCase().trim().isEmpty) {
+                      } else if (userSecondName.text
+                          .toLowerCase()
+                          .trim()
+                          .isEmpty) {
+                        //if the user has not complete the second name field shows an alert
                         snackBarService.showSnackBar(
                             content: "PON TUS APELLIDOS");
-                      }else if (!EmailValidator.validate(email.text)) {       
+                      } else if (!EmailValidator.validate(email.text)) {
+                        //if the email is not valid shows an alert
                         snackBarService.showSnackBar(
                             content: "CORREO ELECTRONICO INCORRECTO");
                       } else if ((password.text.toLowerCase() !=
                               repeatPassword.text.toLowerCase()) &&
                           password.text.isNotEmpty) {
+                        //if the passwords are not the same shows an alert
                         snackBarService.showSnackBar(
                             content: "LAS CONTRASEÑAS NO SON IGUALES");
                       }
