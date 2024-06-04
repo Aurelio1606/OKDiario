@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-//import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -11,6 +10,7 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  ///Initializes notifications for android and ios devices
   Future<void> initNotifications() async {
     flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
@@ -36,6 +36,7 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
+  ///Sets notifications details
   notificationsDetails() {
     return const NotificationDetails(
       android: AndroidNotificationDetails(
@@ -48,12 +49,15 @@ class NotificationService {
     );
   }
 
+  ///Shows a notification
   Future showNotification(
       {int id = 0, String? title, String? body, String? payload}) async {
     return flutterLocalNotificationsPlugin.show(
         id, title, body, await notificationsDetails());
   }
 
+  ///Allows to set a notification with an id [id], its title [title], its description [body]
+  ///its payload [payload] at a certain date [scheduleNoti]
   Future scheduleNotification(
       {int id = 0,
       String? title,
@@ -70,7 +74,8 @@ class NotificationService {
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
   }
-
+  ///Allows to set a notification that repeats every day with an id [id], its title [title], its description [body]
+  ///its payload [payload] at a certain date [scheduleNoti]
   Future periodicDailyNotification(
       {int id = 0,
       String? title,
@@ -89,6 +94,8 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time);
   }
 
+  ///Allows to set a notification that repeats every hour with an id [id], its title [title], its description [body]
+  ///its payload [payload] at a certain date [scheduleNoti]
   Future periodicHourNotification(
       {int id = 0,
       String? title,
@@ -105,22 +112,9 @@ class NotificationService {
     );
   }
 
-  // Future periodicWeeklyNotification(
-  //     {int id = 0,
-  //     String? title,
-  //     String? body,
-  //     String? payload,
-  //     required DateTime scheduledNoti}) async {
-  //   return flutterLocalNotificationsPlugin.periodicallyShow(
-  //     id,
-  //     title,
-  //     body,
-  //     RepeatInterval.weekly,
-  //     await notificationsDetails(),
-  //     androidAllowWhileIdle: true,
-  //   );
-  // }
-
+  ///Allows to set a notification that repeats every week at they specified at date [scheduleNoti]
+  /// with an id [id], its title [title], its description [body]
+  ///its payload [payload] 
   Future periodicWeeklyNotification(
       {int id = 0,
       String? title,
@@ -139,6 +133,7 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
   }
 
+  ///Shows scheduled notifications active in the device
   Future<void> getActiveNotifications(BuildContext context) async {
     final Widget activeNotificationsDialogContent =
         await _getActiveNotificationsDialogContent(context);
@@ -158,6 +153,8 @@ class NotificationService {
     );
   }
 
+  //Rest of the functions have been taken from the official page of flutter local notification
+  //https://pub.dev/packages/flutter_local_notifications/example
   Future<Widget> _getActiveNotificationsDialogContent(
       BuildContext context) async {
     if (Platform.isAndroid) {

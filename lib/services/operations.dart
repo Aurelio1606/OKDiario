@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:proyecto/models/task_model.dart';
 import 'package:intl/intl.dart';
 import 'package:proyecto/models/students_model.dart';
@@ -30,57 +29,43 @@ final DatabaseReference _userActivity = FirebaseDatabase(
     .child("Usuarios2")
     .child("Actividad");
 
-// Future<void> guardarUsuarios(Student user) async {
-//   DatabaseEvent numUsersEvent = await _contadorRef.once();
 
-//   if (numUsersEvent.snapshot != null) {
-//     DataSnapshot numUsers = numUsersEvent.snapshot;
+// Future<List<Student>> getUsuarios() async {
+//   List<Student> estudiantes = [];
 
-//     int cont = int.tryParse(numUsers.value.toString()) ?? 0;
+//   try {
+//     // Obtener el DatabaseEvent usando onValue
+//     DatabaseEvent event = await _userRef.onValue.first;
 
-//     _userRef.child(cont.toString()).set(user.toJson());
-//     _contadorRef.set(cont + 1);
-//   } else {
-//     print("Error");
+//     // Obtener el DataSnapshot desde el evento
+//     DataSnapshot dataSnapshot = event.snapshot;
+
+//     final data = dataSnapshot.value;
+
+//     // Verificar si hay datos y si es una lista
+//     if (data != null && data is List) {
+//       // Realizar un casting a List<dynamic>
+//       final lista = data;
+
+//       // Iterar sobre los elementos de la lista
+//       for (var item in lista) {
+//         var estudiante = Student.fromJson(item);
+//         estudiantes.add(estudiante);
+//       }
+//     } else {
+//       print('Datos no válidos');
+//     }
+//   } catch (e) {
+//     print("Error: $e");
 //   }
+
+//   return estudiantes;
 // }
 
-Future<List<Student>> getUsuarios() async {
-  List<Student> estudiantes = [];
-
-  try {
-    // Obtener el DatabaseEvent usando onValue
-    DatabaseEvent event = await _userRef.onValue.first;
-
-    // Obtener el DataSnapshot desde el evento
-    DataSnapshot dataSnapshot = event.snapshot;
-
-    final data = dataSnapshot.value;
-
-    // Verificar si hay datos y si es una lista
-    if (data != null && data is List) {
-      // Realizar un casting a List<dynamic>
-      final lista = data;
-
-      // Iterar sobre los elementos de la lista
-      for (var item in lista) {
-        var estudiante = Student.fromJson(item);
-        estudiantes.add(estudiante);
-      }
-    } else {
-      print('Datos no válidos');
-    }
-  } catch (e) {
-    print("Error: $e");
-  }
-
-  return estudiantes;
-}
-
+///Registers an user, saving its data in the databse
 Future<void> userRegister(
     String name, String second, String password, String email) async {
   String key = _userRegistered.push().key!;
-  //final fcmToken = await FirebaseMessaging.instance.getToken();
 
   try {
     await _userRegistered.child(key).set({
@@ -95,6 +80,8 @@ Future<void> userRegister(
   }
 }
 
+///Checks if the user name [name] and password [password] introduced by the user in login screen
+///is the same as the ones stored in the database
 Future<String?> validateData(String name, String password) async {
   String? key = '';
 
@@ -105,12 +92,10 @@ Future<String?> validateData(String name, String password) async {
       for (var user in usuarios.children) {
         if ((user.value as Map)["Nombre"] == name &&
             (user.value as Map)["Contraseña"] == password) {
-          print("Correcto");
           key = user.key;
 
           return key;
         } else {
-          print("Incorrecto");
         }
       }
       return key;
@@ -123,6 +108,7 @@ Future<String?> validateData(String name, String password) async {
   }
 }
 
+///Gets the user's name using the user key
 Future<String?> getUser(String key) async {
   String name = '';
 
@@ -131,7 +117,6 @@ Future<String?> getUser(String key) async {
 
     if (usuario.exists) {
       name = (usuario.value as Map)["Nombre"];
-      print("El usuario es $name");
     } else {
       print("El usuario no existe");
     }
@@ -142,10 +127,11 @@ Future<String?> getUser(String key) async {
   return name;
 }
 
+///Saves in the database activity information about the user and the time 
+///at which the action was performed
 Future<void> registerActivity(String userkey, String activity) async {
   String? user = await getUser(userkey);
 
-  //String key = _userRegistered.push().key!;
   String day = DateFormat('dd-MM-yyyy').format(DateTime.now()).toString();
   String hour = DateFormat('HH:mm:ss').format(DateTime.now()).toString();
   try {
@@ -158,47 +144,48 @@ Future<void> registerActivity(String userkey, String activity) async {
   }
 }
 
-Future<List<Task>> getTareas(String userkey) async {
-  final DatabaseReference _userTasks = FirebaseDatabase(
-          databaseURL:
-              "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-      .ref()
-      .child("Usuarios2")
-      .child("DatosUsuario")
-      .child(userkey)
-      .child("TaskData");
+// Future<List<Task>> getTareas(String userkey) async {
+//   final DatabaseReference _userTasks = FirebaseDatabase(
+//           databaseURL:
+//               "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
+//       .ref()
+//       .child("Usuarios2")
+//       .child("DatosUsuario")
+//       .child(userkey)
+//       .child("TaskData");
 
-  List<Task> tareas = [];
+//   List<Task> tareas = [];
 
-  try {
-    // Obtener el DatabaseEvent usando onValue
-    DatabaseEvent event = await _userTasks.onValue.first;
+//   try {
+//     // Obtener el DatabaseEvent usando onValue
+//     DatabaseEvent event = await _userTasks.onValue.first;
 
-    // Obtener el DataSnapshot desde el evento
-    DataSnapshot dataSnapshot = event.snapshot;
+//     // Obtener el DataSnapshot desde el evento
+//     DataSnapshot dataSnapshot = event.snapshot;
 
-    final data = dataSnapshot.value;
+//     final data = dataSnapshot.value;
 
-    // Verificar si hay datos y si es una lista
-    if (data != null && data is List) {
-      // Iterar sobre los elementos de la lista
-      for (var item in data) {
-        // Verificar si el elemento es un mapa y contiene datos de tarea
-        if (item is Map) {
-          var tarea = Task.fromJson(item);
-          tareas.add(tarea);
-        }
-      }
-    } else {
-      print('Datos no válidos');
-    }
-  } catch (e) {
-    print("Error: $e");
-  }
+//     // Verificar si hay datos y si es una lista
+//     if (data != null && data is List) {
+//       // Iterar sobre los elementos de la lista
+//       for (var item in data) {
+//         // Verificar si el elemento es un mapa y contiene datos de tarea
+//         if (item is Map) {
+//           var tarea = Task.fromJson(item);
+//           tareas.add(tarea);
+//         }
+//       }
+//     } else {
+//       print('Datos no válidos');
+//     }
+//   } catch (e) {
+//     print("Error: $e");
+//   }
 
-  return tareas;
-}
+//   return tareas;
+// }
 
+///Gets the calender option that the user has choosen from the database
 Future<String?> getCalendarOption(String key) async {
   String option = '';
 
@@ -207,7 +194,6 @@ Future<String?> getCalendarOption(String key) async {
 
     if (usuario.exists) {
       option = (usuario.value as Map)["CalendarOption"];
-      print("El usuario es $option");
     } else {
       print("El usuario no existe");
     }
@@ -218,7 +204,8 @@ Future<String?> getCalendarOption(String key) async {
   return option;
 }
 
- setCalendarOption(String key, String option) async {
+///Changes the user's calendar option in the database
+setCalendarOption(String key, String option) async {
     final DatabaseReference _userRegistered = FirebaseDatabase(
         databaseURL:
             "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -226,7 +213,6 @@ Future<String?> getCalendarOption(String key) async {
     .child("Usuarios2") 
     .child("DatosUsuario")
     .child(key);
-  //final fcmToken = await FirebaseMessaging.instance.getToken();
 
   try {
     await _userRegistered.update({

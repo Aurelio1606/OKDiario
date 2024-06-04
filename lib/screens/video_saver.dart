@@ -17,8 +17,9 @@ class VideoSaver extends StatefulWidget {
 }
 
 class _VideoSaverState extends State<VideoSaver> {
-  TextEditingController url = TextEditingController();
+  ///Controller for video title text field
   TextEditingController title = TextEditingController();
+  ///file selected from the device gallery
   File? galleryFile;
   final picker = ImagePicker();
   bool chargeVideo = false;
@@ -30,31 +31,21 @@ class _VideoSaverState extends State<VideoSaver> {
     _controller.dispose();
   }
 
-  getVideoIndex(String userKey) async {
-    final DatabaseReference _videoIndex = FirebaseDatabase(
-            databaseURL:
-                "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-        .ref()
-        .child("Usuarios2")
-        .child("DatosUsuario")
-        .child(userKey)
-        .child("Videos");
-
-    //DataSnapshot snapshot = await _videoIndex.;
-  }
 
   @override
+  //Builds the video picker interface
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 245, 239, 216),
-      appBar: TopBarStudentHome(arrow: true, backIndex: 0),
+      appBar: const TopBarStudentHome(arrow: true, backIndex: 0),
       body: Padding(
         padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
+              //Title for the video picked by the user
               TextField(
                 maxLines: 2,
                 controller: title,
@@ -73,7 +64,7 @@ class _VideoSaverState extends State<VideoSaver> {
                     ),
                   ),
                 ),
-                style: TextStyle(color: Colors.black, fontSize: 18),
+                style: const TextStyle(color: Colors.black, fontSize: 18),
               ),
               const SizedBox(
                 height: 20,
@@ -83,24 +74,24 @@ class _VideoSaverState extends State<VideoSaver> {
                 child: !chargeVideo
                     ? GestureDetector(
                         onTap: () async {
+                          //If the user clicks on the default image, it opens the device gallery so the
+                          //user can choose a video
                           final pickedFile = await picker.pickVideo(
                               source: ImageSource.gallery);
                           XFile? xfilePicked = pickedFile;
 
                           setState(() {
                             if (xfilePicked != null) {
-                              galleryFile = File(pickedFile!.path);
-                              print(galleryFile);
+                              galleryFile = File(pickedFile!.path);                              
                               chargeVideo = true;
 
+                              //saves video url
                               _controller = VideoPlayerController.networkUrl(
                                   Uri.parse(galleryFile!.path))
                                 ..initialize().then((_) {
                                   // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
                                   setState(() {});
                                 });
-                            } else {
-                              print("eqweqw");
                             }
                           });
                         },
@@ -117,15 +108,14 @@ class _VideoSaverState extends State<VideoSaver> {
                     : GestureDetector(
                         onTap: () {
                           setState(() {
+                            //Allows to play or pause the video
                             _controller.value.isPlaying
                                 ? _controller.pause()
                                 : _controller.play();
                           });
                         },
                         child: AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          // decoration:
-                          //     BoxDecoration(border: Border.all(width: 1)),
+                          aspectRatio: _controller.value.aspectRatio,                        
                           child: Stack(
                             children: [
                               VideoPlayer(_controller),
@@ -147,6 +137,8 @@ class _VideoSaverState extends State<VideoSaver> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
+                    //When user clicks on 'Cambiar' button it opens the gallery and allows user to
+                    //choose another video
                     onPressed: () async {
                       final pickedFile =
                           await picker.pickVideo(source: ImageSource.gallery);
@@ -170,7 +162,7 @@ class _VideoSaverState extends State<VideoSaver> {
                       minimumSize:
                           MaterialStateProperty.all(const Size(150, 60)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 157, 151, 202)),
+                          const Color.fromARGB(255, 157, 151, 202)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       )),
@@ -191,6 +183,7 @@ class _VideoSaverState extends State<VideoSaver> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      //If the video title is not empty
                       if (title.text.isNotEmpty) {
                         final DatabaseReference _saveVideo = FirebaseDatabase(
                                 databaseURL:
@@ -200,11 +193,14 @@ class _VideoSaverState extends State<VideoSaver> {
                             .child("DatosUsuario")
                             .child(userProvider.userKey)
                             .child("Videos");
-
+                        
+                        //when the user clicks on 'Guardar' button, the video title and its url
+                        //is saved in the data base
                         _saveVideo.push().set({
                           'Titulo': title.text,
                           'Enlace': galleryFile!.path,
                         });
+                        //Redirects user to the video list screen
                         Navigator.push<Widget>(
                           context,
                           MaterialPageRoute(
@@ -218,7 +214,7 @@ class _VideoSaverState extends State<VideoSaver> {
                       minimumSize:
                           MaterialStateProperty.all(const Size(150, 60)),
                       backgroundColor: MaterialStateProperty.all(
-                          Color.fromARGB(255, 157, 151, 202)),
+                          const Color.fromARGB(255, 157, 151, 202)),
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       )),
@@ -236,26 +232,6 @@ class _VideoSaverState extends State<VideoSaver> {
                   ),
                 ],
               ),
-              // TextField(
-              //   maxLines: 3,
-              //   controller: url,
-              //   decoration: InputDecoration(
-              //     filled: true,
-              //     fillColor: const Color.fromARGB(255, 190, 190, 190),
-              //     hintText: 'Escribe su enlace',
-              //     enabledBorder: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(16),
-              //     ),
-              //     focusedBorder: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(16),
-              //       borderSide: const BorderSide(
-              //         color: Colors.black,
-              //         width: 2,
-              //       ),
-              //     ),
-              //   ),
-              //   style: TextStyle(color: Colors.black, fontSize: 18),
-              // ),
               const SizedBox(
                 height: 20,
               ),

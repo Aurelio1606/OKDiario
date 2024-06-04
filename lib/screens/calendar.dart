@@ -27,7 +27,7 @@ import 'package:proyecto/screens/provider.dart';
 import 'package:provider/provider.dart';
 
 part 'appointment_editor.dart';
-part 'timezone_picker.dart';
+//part 'timezone_picker.dart';
 part 'color_picker.dart';
 part 'day_picker.dart';
 

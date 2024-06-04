@@ -10,17 +10,23 @@ import 'package:proyecto/widgets/widget_top_homeStudent.dart';
 import 'package:video_player/video_player.dart';
 
 class Videos extends StatefulWidget {
+  const Videos({super.key});
+
   @override
-  _Videos createState() => _Videos();
+  State<Videos> createState() => _Videos();
 }
 
 class _Videos extends State<Videos> {
+  ///videos's controllers list
   late List<VideoPlayerController> controllers = [];
+  ///videos's titles list
   late List<String> videoTitles = [];
+  ///videos's keys list
   late List<String> videoKeys = [];
   File? galleryFile;
   final picker = ImagePicker();
 
+  ///Displays a menu to pick files from the device gallery. It opens the video_saver screen
   void showPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -36,34 +42,22 @@ class _Videos extends State<Videos> {
                         topRight: Radius.circular(10)),
                     border: Border.all(width: 1)),
                 child: ListTile(
-                  visualDensity: VisualDensity(vertical: 4),
+                  visualDensity: const VisualDensity(vertical: 4),
                   leading: const Icon(Icons.photo_library),
                   title: const Text(
                     'Video de la galeria',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
                   onTap: () {
-                    // getVideoFromGallery(context);
-                    // Navigator.of(context).pop();
+                    //Redirects user to video saver screen
                     Navigator.push<Widget>(
                       context,
                       MaterialPageRoute(
-                          builder: (BuildContext context) => VideoSaver()),
+                          builder: (BuildContext context) => const VideoSaver()),
                     );
                   },
                 ),
               ),
-              // ListTile(
-              //   leading: const Icon(Icons.photo_camera),
-              //   title: const Text('Video de un enlace'),
-              //   onTap: () {
-              //     Navigator.push<Widget>(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (BuildContext context) => VideoSaver()),
-              //     );
-              //   },
-              // ),
             ],
           ),
         );
@@ -71,27 +65,7 @@ class _Videos extends State<Videos> {
     );
   }
 
-  getVideoFromGallery(BuildContext context) async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final DatabaseReference _saveVideo = FirebaseDatabase(
-            databaseURL:
-                "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
-        .ref()
-        .child("Usuarios2")
-        .child("DatosUsuario")
-        .child(userProvider.userKey)
-        .child("Videos");
-
-    final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
-    XFile? xfilePicked = pickedFile;
-
-    if (xfilePicked != null) {
-      Container(
-        color: const Color.fromARGB(255, 165, 165, 165),
-      );
-    }
-  }
-
+  ///Gets videos's urls from the database and returns a map if 'value' is not empty
   getUrls() async {
     UserProvider userProvider = UserProvider();
     final DatabaseReference _videos = FirebaseDatabase(
@@ -105,8 +79,6 @@ class _Videos extends State<Videos> {
 
     DataSnapshot snapshot = await _videos.get();
 
-    // print((snapshot.value as Map));
-    // print((snapshot.value as Map).length);
     if (snapshot.value != null) {
       return (snapshot.value as Map);
     } else {
@@ -117,16 +89,13 @@ class _Videos extends State<Videos> {
   @override
   void initState() {
     super.initState();
-    // _controller = VideoPlayerController.networkUrl(Uri.parse(
-    //     'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4'))
-    //   ..initialize().then((_) {
-    //     // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-    //     setState(() {});
-    //   });
 
+    //for each video, gets the video url and then it adds them to the controller list,
+    //the titles are added to videoTitles list and the keys are added to
+    //videoKeys list, so that for the first video, every variable is added in the same position 
+    //in each list
     getUrls().then((results) {
       if (results != null) {
-        //setState(() {
         for (var key in results.keys) {
           controllers.add(VideoPlayerController.networkUrl(
               Uri.parse(results[key]['Enlace']))
@@ -136,7 +105,6 @@ class _Videos extends State<Videos> {
           videoTitles.add(results[key]['Titulo']);
           videoKeys.add(key);
         }
-        //});
       }
     });
   }
@@ -144,39 +112,41 @@ class _Videos extends State<Videos> {
   @override
   void dispose() {
     super.dispose();
+    //disposes each video controller
     for (var controller in controllers) {
       controller.dispose();
     }
   }
 
+  ///Builds the videos grid interface
   Widget getVideos(String userKey) {
     return Expanded(
         child: GridView.builder(
             itemCount: controllers.length,
             shrinkWrap: true,
-            physics: ScrollPhysics(),
+            physics: const ScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1),
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () {
                   setState(() {
+                    //controllers list to play or pause each video
                     controllers[index].value.isPlaying
                         ? controllers[index].pause()
                         : controllers[index].play();
                   });
                 },
+                //Cards interface where each video is displayed along with its title
                 child: Card(
-                  color: Color.fromARGB(255, 240, 240, 240),
+                  color: const Color.fromARGB(255, 240, 240, 240),
                   margin:
-                      EdgeInsets.only(left: 10, right: 10, bottom: 40, top: 10),
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 40, top: 10),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
                         child: AspectRatio(
-                          //Container
-                          //padding: EdgeInsets.all(10),
                           aspectRatio: controllers[index].value.aspectRatio,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -208,6 +178,7 @@ class _Videos extends State<Videos> {
                           const Spacer(
                             flex: 2,
                           ),
+                          //Button to delete a video
                           IconButton(
                             onPressed: () {
                               showDelete(context, index, userKey);
@@ -228,6 +199,7 @@ class _Videos extends State<Videos> {
   }
 
   @override
+  //Builds the screen where the videos grid is displayed
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -241,11 +213,12 @@ class _Videos extends State<Videos> {
         width: 70,
         height: 70,
         child: FittedBox(
+          //Button to add a video
           child: FloatingActionButton(
             onPressed: () async {
               showPicker(context);
             },
-            backgroundColor: Color.fromARGB(255, 231, 231, 231),
+            backgroundColor: const Color.fromARGB(255, 231, 231, 231),
             child: const Column(
               children: [
                 Icon(
@@ -271,11 +244,11 @@ class _Videos extends State<Videos> {
               height: 60,
               decoration: BoxDecoration(
                   color: Colors.blue[200],
-                  //borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black)),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  //Screen title
                   Text(
                     "Mis videos de instrucciones",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
@@ -290,6 +263,7 @@ class _Videos extends State<Videos> {
     );
   }
 
+  ///Shows an alert dialog to confirm if user wants to delete a video
   showDelete(BuildContext context, int index, String userKey) {
     Widget continueButton = ElevatedButton(
       style: const ButtonStyle(
@@ -310,7 +284,8 @@ class _Videos extends State<Videos> {
             .child(userKey)
             .child("Videos");
 
-        //print(videoKeys[index]);
+          //If the user clicks on 'Continuar' button, it removes the video from the database
+          //and deletes the video information from controllers, videoTitles and videoKeys lists
         _deleteVideo.child(videoKeys[index]).remove().then((_) {
           setState(() {
             controllers.removeAt(index);
@@ -332,13 +307,13 @@ class _Videos extends State<Videos> {
       ),
       onPressed: () async {
         Navigator.of(context, rootNavigator: true)
-            .pop(); // Cerrar el AlertDialog
+            .pop(); //Close the AlertDialog
       },
     );
 
     AlertDialog alert = AlertDialog(
       contentPadding: const EdgeInsets.only(left: 0, right: 0, top: 10),
-      insetPadding: EdgeInsets.all(10),
+      insetPadding: const EdgeInsets.all(10),
       backgroundColor: const Color.fromARGB(255, 231, 231, 231),
       surfaceTintColor: Colors.transparent,
       content: const Column(
