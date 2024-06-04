@@ -10,6 +10,7 @@ class TopBarHome extends StatelessWidget implements PreferredSizeWidget {
       : preferredSize = const Size.fromHeight(120.0);
 
   @override
+  //Builds the top bar interface for admin/teacher home screen
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 10,
@@ -60,7 +61,7 @@ class TopBarHome extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      backgroundColor: Color.fromARGB(255, 157, 151, 202),
+      backgroundColor: const Color.fromARGB(255, 157, 151, 202),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto/screens/home_estudent.dart';
 import 'package:proyecto/screens/home_selection.dart';
 
 class TopBarInitial extends StatefulWidget implements PreferredSizeWidget {
@@ -17,6 +16,7 @@ class TopBarInitial extends StatefulWidget implements PreferredSizeWidget {
 
 class _TopBarInitialState extends State<TopBarInitial> {
   @override
+  //Builds top bar interface for the main screen (first screen that apperar when the users open the app)
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 10,

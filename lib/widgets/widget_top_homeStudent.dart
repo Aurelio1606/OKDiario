@@ -13,6 +13,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
   const TopBarStudentHome({super.key, required this.arrow, required this.backIndex})
       : preferredSize = const Size.fromHeight(120.0);
 
+  ///Customized transition between pages
   Route customChangeView() {
     return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -20,7 +21,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
               page: backIndex,
             ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          var begin = Offset(1, 0); // de izquierda a derecha
+          var begin = const Offset(1, 0); // de izquierda a derecha
           var end = Offset.zero;
           var curve = Curves.ease;
 
@@ -32,11 +33,12 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
             child: child,
           );
         },
-        transitionDuration: Duration(milliseconds: 500) //any duration you want
+        transitionDuration: const Duration(milliseconds: 500) //any duration you want
         );
   }
 
   @override
+  //Build top bar interface for students view
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 10,
@@ -44,6 +46,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       leadingWidth: 100,
       leading: arrow
+          //shows an arrow if the user is on a different page tham the home
           ? IconButton(
               hoverColor: Colors.transparent,
               splashColor: Colors.transparent,
@@ -72,6 +75,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
                 Navigator.of(context).push(customChangeView());
               },
             )
+            //shows the button 'salir' if the user is in the home page
           : IconButton(
               hoverColor: Colors.transparent,
               splashColor: Colors.transparent,
@@ -108,6 +112,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(
             right: 10.0,
           ),
+          //'Ayuda' button that redirects the user to the videos screen
           child: IconButton(
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
@@ -135,7 +140,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () {
               NavigatorState navigator = Navigator.of(context);
               navigator.push(MaterialPageRoute(builder: (context) {
-                return Videos();
+                return const Videos();
               }));
             },
           ),
@@ -151,7 +156,7 @@ class TopBarStudentHome extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      backgroundColor: Color.fromARGB(255, 157, 151, 202),
+      backgroundColor: const Color.fromARGB(255, 157, 151, 202),
     );
   }
 }

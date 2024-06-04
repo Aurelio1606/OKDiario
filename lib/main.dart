@@ -31,8 +31,7 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-/// Clase Main//
-
+///Main class
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -58,7 +57,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: MainScreen(),
+        //First app's page
+        home: const MainScreen(),
       ),
     );
   }
