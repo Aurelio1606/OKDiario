@@ -1,33 +1,19 @@
 library event_calendar;
 
 import 'dart:async';
-//import 'dart:js_util';
-//import 'dart:collection';
 import 'dart:math';
-// import 'dart:io';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_core/firebase_core.dart';
-
-//import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:googleapis/admob/v1.dart';
-import 'package:proyecto/screens/home_estudent.dart';
 import 'package:proyecto/screens/home_teacher.dart';
 import 'package:proyecto/services/notifications.dart';
 import 'package:proyecto/services/operations.dart';
-import 'package:proyecto/widgets/widget_top_initial.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 import 'package:proyecto/screens/provider.dart';
 import 'package:provider/provider.dart';
 
 part 'appointment_editor.dart';
-//part 'timezone_picker.dart';
 part 'color_picker.dart';
 part 'day_picker.dart';
 
@@ -102,6 +88,7 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
   void initState() {
     _initializeEventColor();
 
+    ///Gets the appointments from the database
     getDataFromDatabase(chosenCalendar).then((results) {
       setState(() {
         if (results != null) {
@@ -126,15 +113,8 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
       });
     });
 
-    print("Se inicializan");
     loadDisplayDate();
     loadSelectedDate();
-
-    // getEvents().then((meetings) {
-    //   setState(() {
-    //     _events = DataSource(meetings);
-    //   });
-    // });
 
     _controller = CalendarController();
     _events = DataSource(getMeetingDetails());
@@ -144,7 +124,8 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
     _subject = '';
     _notes = '';
 
-    dayText = 'actualDay'; //Inicialización para que no de null
+    //Initialization to prevent null error
+    dayText = 'actualDay';
     nextDayText = 'nextDay';
 
     super.initState();
@@ -1190,11 +1171,14 @@ loadUser() async {
   return user;
 }
 
+///Gets user's appointments from the database depending on calendar option [option]
 getDataFromDatabase(String option) async {
   UserProvider userProvider = UserProvider();
 
-  print("Opcion selected $option ");
-
+  //Depending on the calendar option, the are 4 cases
+  //1 -> gets the user's appointments for that day
+  //3 -> gets the appointments from a common calendar, the user can't modify this calendar
+  //4 -> gets the user's appointments for the next day
   if (option == '1') {
     final DatabaseReference _calendarRef = FirebaseDatabase(
             databaseURL:
@@ -1207,9 +1191,6 @@ getDataFromDatabase(String option) async {
 
     var event = await _calendarRef.once();
     if (event.snapshot.value != null) {
-      print("debajo");
-      print(event.snapshot.value);
-
       return event.snapshot;
     } else {
       print("No se encontraron datos válidos en la base de datos.");
@@ -1225,9 +1206,6 @@ getDataFromDatabase(String option) async {
 
     var event = await _calendarRef.once();
     if (event.snapshot.value != null) {
-      print("debajo");
-      print(event.snapshot.value);
-
       return event.snapshot;
     } else {
       print("No se encontraron datos válidos en la base de datos.");
@@ -1243,8 +1221,6 @@ getDataFromDatabase(String option) async {
 
     var event = await _calendarRef.once();
     if (event.snapshot.value != null) {
-      print("debajo");
-      print(event.snapshot.value);
 
       return event.snapshot;
     } else {
@@ -1254,6 +1230,7 @@ getDataFromDatabase(String option) async {
   }
 }
 
+///Gets the user's appointmets and creates a meetings list
 Future<List<Meeting>> getEvents() async {
   //* COMPROBAR */
   UserProvider userProvider = UserProvider();
@@ -1278,8 +1255,6 @@ Future<List<Meeting>> getEvents() async {
 
       for (int i = 0; i < key.length; i++) {
         var data = values[key[i]];
-        //final Random random = new Random();
-        print(data);
         meetingList.add(Meeting(
           eventName: data['Subject'],
           isAllDay: false,
@@ -1306,39 +1281,16 @@ class DataSource extends CalendarDataSource {
   }
 }
 
+///Modifies the appointments style on the calendar
 Widget appointmentBuilder(BuildContext context,
     CalendarAppointmentDetails calendarAppointmentDetails) {
   final Appointment appointment = calendarAppointmentDetails.appointments.first;
-  //print(calendarAppointmentDetails.bounds.height);
   return Column(
-    children: [
-      // Container(
-      //   width: calendarAppointmentDetails.bounds.width,
-      //   height: calendarAppointmentDetails.bounds.height/2,
-      //   decoration: BoxDecoration(
-      //     color: appointment.color,
-      //     border: Border.all(color: Colors.black, width: 1),
-      //     borderRadius: const BorderRadius.only(
-      //         topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      //   ),
-      //   child: Column(
-      //     children: [
-      //       Text(
-      //         appointment.subject,
-      //         textAlign: TextAlign.center,
-      //         style: TextStyle(fontSize: 18),
-      //       ),
-      //       Text(
-      //         "Hora: " +
-      //             DateFormat('HH:mm').format(appointment.startTime) +
-      //             '-' +
-      //             DateFormat('HH:mm').format(appointment.endTime),
-      //         textAlign: TextAlign.center,
-      //         style: TextStyle(fontSize: 18),
-      //       )
-      //     ],
-      //   ),
-      // ),
+    children: [  
+      //Modifies appointmets style, making the letter bigger to make it easier to read
+      //It has different styles depending on the appointments duration, that is to say, if
+      //the appointmets duration is for example 30 minutes, the letter size adjusts to show the the most important
+      //information.
       Container(
         width: calendarAppointmentDetails.bounds.width,
         height: calendarAppointmentDetails.bounds.height,
@@ -1350,26 +1302,6 @@ Widget appointmentBuilder(BuildContext context,
         child: (calendarAppointmentDetails.bounds.height > 50)
             ? Column(
                 children: [
-                  // Icono centrado verticalmente junto con el texto "Ubicacion"
-                  // const Padding(
-                  //   padding: EdgeInsets.only(left: 2),
-                  //   child: Column(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     children: [
-                  //       Icon(
-                  //         Icons.location_on_sharp,
-                  //       ),
-                  //       Text(
-                  //         "Ubicacion",
-                  //         style: TextStyle(fontSize: 15),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // const VerticalDivider(
-                  //   thickness: 1,
-                  //   color: Colors.black,
-                  // ),
                   Expanded(
                     child: SingleChildScrollView(
                       child: (calendarAppointmentDetails.bounds.height > 116)
@@ -1378,7 +1310,7 @@ Widget appointmentBuilder(BuildContext context,
                                 Text(
                                   appointment.subject,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                                 Text(
                                   "Hora: " +
@@ -1388,7 +1320,7 @@ Widget appointmentBuilder(BuildContext context,
                                       DateFormat('HH:mm')
                                           .format(appointment.endTime),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 18),
                                 ),
                                 const Divider(
                                   thickness: 1,
@@ -1407,8 +1339,8 @@ Widget appointmentBuilder(BuildContext context,
                                     style: (calendarAppointmentDetails
                                                 .bounds.height >
                                             80)
-                                        ? TextStyle(fontSize: 16)
-                                        : TextStyle(fontSize: 11),
+                                        ? const TextStyle(fontSize: 16)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                   Text(
                                     "     Hora: " +
@@ -1421,8 +1353,8 @@ Widget appointmentBuilder(BuildContext context,
                                     style: (calendarAppointmentDetails
                                                 .bounds.height >
                                             80)
-                                        ? TextStyle(fontSize: 16)
-                                        : TextStyle(fontSize: 11),
+                                        ? const TextStyle(fontSize: 16)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ],
                               ),
@@ -1438,7 +1370,7 @@ Widget appointmentBuilder(BuildContext context,
                           Text(
                             appointment.notes!.toString().toUpperCase(),
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 18),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ],
                       ),
@@ -1453,8 +1385,8 @@ Widget appointmentBuilder(BuildContext context,
                     appointment.subject,
                     textAlign: TextAlign.center,
                     style: (calendarAppointmentDetails.bounds.height > 25)
-                        ? TextStyle(fontSize: 16)
-                        : TextStyle(fontSize: 11),
+                        ? const TextStyle(fontSize: 16)
+                        : const TextStyle(fontSize: 11),
                   ),
                   Text(
                     "    Hora: " +
@@ -1463,8 +1395,8 @@ Widget appointmentBuilder(BuildContext context,
                         DateFormat('HH:mm').format(appointment.endTime),
                     textAlign: TextAlign.center,
                     style: (calendarAppointmentDetails.bounds.height > 25)
-                        ? TextStyle(fontSize: 16)
-                        : TextStyle(fontSize: 11),
+                        ? const TextStyle(fontSize: 16)
+                        : const TextStyle(fontSize: 11),
                   )
                 ],
               ),
