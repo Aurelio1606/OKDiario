@@ -179,8 +179,8 @@ class _DayPickerState extends State<_DayPicker> {
                         width: 170,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 174, 154, 217),
-                            side: BorderSide(color: Colors.black, width: 1, style: BorderStyle.solid)
+                            backgroundColor: const Color.fromARGB(255, 174, 154, 217),
+                            side: const BorderSide(color: Colors.black, width: 1, style: BorderStyle.solid)
                           ),
                           onPressed: () {
                             byDayChain = '';
