@@ -17,7 +17,7 @@ class _Avatar extends State<Avatar> {
   ///User's current puntuation
   int totalPoints = 0;
   ///User's avaible avatars
-  List<bool> seleccionado = [];
+  List<bool> selected = [];
   ///Index of user's current avatar
   int? currentSelected;
 
@@ -71,7 +71,7 @@ class _Avatar extends State<Avatar> {
   }
 
   ///Updates user's puntuation in the database
-  updatePuntosTotales(String userKey, int updatePoints) async {
+  updateTotalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -86,7 +86,7 @@ class _Avatar extends State<Avatar> {
   }
 
   ///Gets user's puntuation from the database and returns it
-  getPuntosTotales(String userKey) async {
+  getTotalPoints(String userKey) async {
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -137,7 +137,7 @@ class _Avatar extends State<Avatar> {
       ),
       onPressed: () async {
         int resta = totalPoints - precio;
-        updatePuntosTotales(userKey, resta);
+        updateTotalPoints(userKey, resta);
 
         _avatars.child(index.toString()).update({
           'Indice': index,
@@ -164,11 +164,11 @@ class _Avatar extends State<Avatar> {
                 TextSpan(
                     text:
                         "Seguro que quieres desbloquear este avatar por $precio  ",
-                    style: TextStyle(color: Colors.black, fontSize: 18)),
+                    style: const TextStyle(color: Colors.black, fontSize: 18)),
                 WidgetSpan(
                   alignment: PlaceholderAlignment.bottom,
                   child: Transform.translate(
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                     child: Image.asset(
                       'assets/images/estrella.png',
                       width: 30,
@@ -245,7 +245,7 @@ class _Avatar extends State<Avatar> {
                 WidgetSpan(
                   alignment: PlaceholderAlignment.bottom,
                   child: Transform.translate(
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                     child: Image.asset(
                       'assets/images/estrella.png',
                       width: 30,
@@ -309,8 +309,8 @@ class _Avatar extends State<Avatar> {
             map['Properties'] = snapshot.data!.snapshot.value;
             map['Key'] = snapshot.data!.snapshot.key;
 
-            while (seleccionado.length < map['Properties']?.length) {
-              seleccionado.add(false);
+            while (selected.length < map['Properties']?.length) {
+              selected.add(false);
             }
 
             getUnlockAvatars(userKey);
@@ -561,7 +561,7 @@ class _Avatar extends State<Avatar> {
       body: Column(
         children: [
           FutureBuilder(
-              future: getPuntosTotales(userProvider.userKey),
+              future: getTotalPoints(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),

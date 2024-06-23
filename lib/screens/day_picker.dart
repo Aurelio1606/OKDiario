@@ -159,7 +159,7 @@ class _DayPickerState extends State<_DayPicker> {
                         borderWidth: 2,
                         borderColor: Colors.black,
                         selectedBorderColor: Colors.green,
-                        fillColor: Color.fromARGB(255, 211, 218, 211),
+                        fillColor: const Color.fromARGB(255, 211, 218, 211),
                         borderRadius: const BorderRadius.all(Radius.circular(8)),
                         textStyle: const TextStyle(
                           fontWeight: FontWeight.bold,

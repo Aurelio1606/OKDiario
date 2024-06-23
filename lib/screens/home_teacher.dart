@@ -92,7 +92,7 @@ class _TeacherViewState extends State<TeacherView> {
                         minimumSize:
                             MaterialStateProperty.all(const Size(400, 80)),
                         backgroundColor: MaterialStateProperty.all(
-                            Color.fromARGB(255, 225, 220, 130)),
+                            const Color.fromARGB(255, 225, 220, 130)),
                         shape: MaterialStateProperty.all(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         )),

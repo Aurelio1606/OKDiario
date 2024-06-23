@@ -21,7 +21,6 @@ import 'package:http/http.dart' as http;
 
 String question = "";
 Color? color;
-List<String> respuestas = [];
 Query? answers;
 String questionType = "";
 String questionKey = "";
@@ -66,22 +65,22 @@ class _StudentView extends State<StudentView> {
   bool completed = false;
 
   ///Actual streak from user
-  int racha = 0;
+  int streak = 0;
 
   ///List of today achivements
   List<Map<dynamic, dynamic>> todayAchivements = [];
 
   @override
   void initState() {
-    colorList.add(Color.fromARGB(255, 160, 122, 192));
-    colorList.add(Color.fromARGB(255, 225, 220, 130));
-    colorList.add(Color.fromARGB(255, 126, 150, 218));
-    colorList.add(Color.fromARGB(255, 241, 165, 206));
-    colorList.add(Color.fromARGB(255, 196, 112, 112));
-    colorList.add(Color.fromARGB(255, 201, 202, 101));
-    colorList.add(Color.fromARGB(255, 112, 204, 112));
-    colorList.add(Color.fromARGB(255, 242, 145, 145));
-    colorList.add(Color.fromARGB(255, 133, 129, 129));
+    colorList.add(const Color.fromARGB(255, 160, 122, 192));
+    colorList.add(const Color.fromARGB(255, 225, 220, 130));
+    colorList.add(const Color.fromARGB(255, 126, 150, 218));
+    colorList.add(const Color.fromARGB(255, 241, 165, 206));
+    colorList.add(const Color.fromARGB(255, 196, 112, 112));
+    colorList.add(const Color.fromARGB(255, 201, 202, 101));
+    colorList.add(const Color.fromARGB(255, 112, 204, 112));
+    colorList.add(const Color.fromARGB(255, 242, 145, 145));
+    colorList.add(const Color.fromARGB(255, 133, 129, 129));
 
     //getToken();
     updateDependencies();
@@ -96,7 +95,7 @@ class _StudentView extends State<StudentView> {
       () => progress(context),
     ];
 
-    indexField.clear(); //para borrar la seleccion de la respuesta del circulo
+    indexField.clear(); //Removes the user's selection in emotions's question
     writenField = "";
 
     super.initState();
@@ -132,7 +131,7 @@ class _StudentView extends State<StudentView> {
       prefs.setString('Version', version);
       getToken();
     } else {
-      print("No actualiazamons");
+      //print("No actualiazamons");
       print("version $version");
       print("version $lastVersion");
       prefs.setString('Version', version);
@@ -162,7 +161,7 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Gets user's dailyPoints from database using its userkey [userKey]
-  getPuntos(String userKey) async {
+  getPoints(String userKey) async {
     final DatabaseReference _dailyPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -184,7 +183,7 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Gets actual user's puntuation from database using its userkey [userKey]
-  getPuntosTotales(String userKey) async {
+  getTotalPoints(String userKey) async {
     final DatabaseReference _totalPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -292,7 +291,6 @@ class _StudentView extends State<StudentView> {
 
   ///Checks the number of points a user has earned in a week and returns positive feedback according to user points
   Widget testTendencie(Map puntos) {
-    //! Arreglar return
     List<double> differences = [];
 
     if (puntos.length >= 2) {
@@ -606,7 +604,7 @@ class _StudentView extends State<StudentView> {
     }
   }
 
-//!Comprobar con questions, funciones repetidas!//
+
   ///Updates globalPoints in the database
   updateGlobalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _globalPoints = FirebaseDatabase(
@@ -638,7 +636,7 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Updates dailyPoints in the database
-  updatePuntos(String userKey, int updatePoints) async {
+  updatePoints(String userKey, int updatePoints) async {
     final DatabaseReference _updateDailyPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -655,7 +653,7 @@ class _StudentView extends State<StudentView> {
       'Puntos': updatePoints,
     });
   }
-//!-----------!//
+
 
   ///Checks if a questions has been completed to show the "tick" or not
   Future<bool> checkCompleteQuestion(
@@ -681,12 +679,12 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Gets daily and total points and update then adding up 50 points 
-  updateRachaPoints(String userKey) async {
-    getPuntos(userKey).then((_) {
-      updatePuntos(userKey, dailyPoints + 50);
+  updateStreakPoints(String userKey) async {
+    getPoints(userKey).then((_) {
+      updatePoints(userKey, dailyPoints + 50);
       setState(() {});
     });
-    getPuntosTotales(userKey).then((_) {
+    getTotalPoints(userKey).then((_) {
       updatePuntosTotales(userKey, totalPoints + 50);
       setState(() {});
     });
@@ -707,7 +705,7 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Gets user's streak that is stored in the device
-  getRacha(String userKey) async {
+  getStreak(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
     DateTime rachaDate = DateTime(
@@ -719,27 +717,27 @@ class _StudentView extends State<StudentView> {
     if (DateTime.now().day != rachaDate.day) {
       if (DateTime.now().day - 1 == rachaDate.day) {
 
-        racha = prefs.getInt('Racha') ?? 0;
-        prefs.setInt('Racha', racha += 1);
+        streak = prefs.getInt('Racha') ?? 0;
+        prefs.setInt('Racha', streak += 1);
         prefs.setInt('RachaMes', now.month);
         prefs.setInt('RachaDia', now.day);
-        racha = prefs.getInt('Racha') ?? 1;
-        updateRachaPoints(userKey);
+        streak = prefs.getInt('Racha') ?? 1;
+        updateStreakPoints(userKey);
       } else {
         prefs.setInt('Racha', 1);
         prefs.setInt('RachaMes', now.month);
         prefs.setInt('RachaDia', now.day);
-        racha = prefs.getInt('Racha') ?? 1;
+        streak = prefs.getInt('Racha') ?? 1;
       }
     } else {
-      racha = prefs.getInt('Racha') ?? 1;
+      streak = prefs.getInt('Racha') ?? 1;
     }
   }
 
   ///Gets user's longest streak from database
-  getMaxRacha(String userKey) async {
+  getMaxStreak(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final DatabaseReference _maxRacha = FirebaseDatabase(
+    final DatabaseReference _maxStreak = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
         .ref()
@@ -748,21 +746,21 @@ class _StudentView extends State<StudentView> {
         .child(userKey)
         .child("MaxRacha");
 
-    DataSnapshot snapshot = await _maxRacha.get();
+    DataSnapshot snapshot = await _maxStreak.get();
 
     //If the user has a streak stored in the database, it checks if which streak is bigger, todays one or the one stored
     //in the database. Depending on which is bigger, a different message is shown to the user
     if (snapshot.exists) {
       if ((prefs.getInt('Racha') ?? 1) >=
           int.parse(snapshot.value.toString())) {
-        _maxRacha.set(prefs.getInt('Racha') ?? 1);
+        _maxStreak.set(prefs.getInt('Racha') ?? 1);
         return "Felicidades es tu mayor racha";
       } else {
         return "Tu máxima racha fue ${snapshot.value}.\n¡Intenta superarla!";
       }
     } else {
       //if there was no streak, it takes the streak stored in the user device and shows positive feedback
-      _maxRacha.set(prefs.getInt('Racha') ?? 1);
+      _maxStreak.set(prefs.getInt('Racha') ?? 1);
       return "Felicidades es tu mayor racha";
     }
   }
@@ -784,7 +782,7 @@ class _StudentView extends State<StudentView> {
   }
 
   ///Gets the availabe achivements from database
-  getLogros(String userKey) async {
+  getAchivements(String userKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var now = DateTime.now();
 
@@ -833,7 +831,7 @@ class _StudentView extends State<StudentView> {
   }
 
   //Gets daily achivements and checks if user has completed then
-  checkCompleteLogros(String userKey, BuildContext context) async {
+  checkCompleteAchivements(String userKey, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final DatabaseReference _todayAchivements = FirebaseDatabase(
@@ -894,7 +892,7 @@ class _StudentView extends State<StudentView> {
               showCompleteAchivement(context);
             }
 
-            updatePuntos(userKey, dailyPoints + 100);
+            updatePoints(userKey, dailyPoints + 100);
             updatePuntosTotales(userKey, totalPoints + 100);
             updateGlobalPoints(userKey, globalPoints + 100);
             prefs.setBool('LoginShown', true);
@@ -911,7 +909,7 @@ class _StudentView extends State<StudentView> {
               if (mounted) {
                 showCompleteAchivement(context);
               }
-              updatePuntos(userKey, dailyPoints + 100);
+              updatePoints(userKey, dailyPoints + 100);
               updatePuntosTotales(userKey, totalPoints + 100);
               updateGlobalPoints(userKey, globalPoints + 100);
               prefs.setBool('LogroShown', true);
@@ -1009,10 +1007,10 @@ class _StudentView extends State<StudentView> {
         .child("Usuarios2")
         .child("Preguntas");
 
-    getPuntos(userProvider.userKey);
+    getPoints(userProvider.userKey);
     getNumQuestions(_userTasks);
-    getLogros(userProvider.userKey);
-    checkCompleteLogros(userProvider.userKey, context);
+    getAchivements(userProvider.userKey);
+    checkCompleteAchivements(userProvider.userKey, context);
 
 
     MediaQueryData mediaQuery = MediaQuery.of(context);
@@ -1021,7 +1019,7 @@ class _StudentView extends State<StudentView> {
       children: [
         Container(
           child: FutureBuilder(
-              future: getPuntosTotales(userProvider.userKey),
+              future: getTotalPoints(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
                 //top bar where information such as the user's puntuation, streak or a link
                 //to achivements are displayed
@@ -1048,7 +1046,7 @@ class _StudentView extends State<StudentView> {
                             Text(
                               totalPoints.toString(),
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 17),
+                              style: const TextStyle(fontSize: 17),
                             ),
                             const SizedBox(
                               width: 5,
@@ -1069,7 +1067,7 @@ class _StudentView extends State<StudentView> {
                     //* Racha
                     //User's streak
                     FutureBuilder(
-                        future: getRacha(userProvider.userKey),
+                        future: getStreak(userProvider.userKey),
                         builder: (context, AsyncSnapshot<dynamic> snapshot) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1088,7 +1086,7 @@ class _StudentView extends State<StudentView> {
                               Row(
                                 children: [
                                   Text(
-                                    racha.toString(),
+                                    streak.toString(),
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(fontSize: 17),
                                   ),
@@ -1165,7 +1163,7 @@ class _StudentView extends State<StudentView> {
                 .format(DateTime.now())
                 .toUpperCase(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
         ),
 
@@ -1174,11 +1172,11 @@ class _StudentView extends State<StudentView> {
         Flexible(
           child: SingleChildScrollView(
             child: Container(
-              color: Color.fromARGB(255, 245, 239, 216),
+              color: const Color.fromARGB(255, 245, 239, 216),
               //height: double.infinity,
               child: FirebaseAnimatedList(
                   shrinkWrap: true,
-                  physics: ScrollPhysics(),
+                  physics: const ScrollPhysics(),
                   query: _userTasks,
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
@@ -1226,13 +1224,13 @@ class _StudentView extends State<StudentView> {
                                         ),
                                         Text(
                                           "Hoy has conseguido $dailyPoints",
-                                          style: TextStyle(fontSize: 18),
+                                          style: const TextStyle(fontSize: 18),
                                         ),
                                         const SizedBox(
                                           width: 10,
                                         ),
                                         Transform.translate(
-                                          offset: Offset(0, -3),
+                                          offset: const Offset(0, -3),
                                           child: Image.asset(
                                             'assets/images/estrella.png',
                                             width: 30,
@@ -1304,7 +1302,7 @@ class _StudentView extends State<StudentView> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 76, 138, 189),
+              color: const Color.fromARGB(255, 76, 138, 189),
               border: Border.all(width: 1, color: Colors.black),
             ),
             height: 80,
@@ -1347,7 +1345,7 @@ class _StudentView extends State<StudentView> {
               future: getGlobalPuntuation(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
                 return Column(
                   children: [
@@ -1603,7 +1601,7 @@ class _StudentView extends State<StudentView> {
               );
             }
           } else {
-            print("No hay datos de preguntas completadas");
+            //print("No hay datos de preguntas completadas");
             objective = "0/$objetivo";
             finalWidget = Text(
               objective,
@@ -1704,7 +1702,7 @@ class _StudentView extends State<StudentView> {
             width: MediaQuery.of(context).size.width,
             height: 50,
             decoration: BoxDecoration(
-                color: Color.fromARGB(255, 128, 224, 119),
+                color: const Color.fromARGB(255, 128, 224, 119),
                 border: Border.all(color: Colors.black)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1756,11 +1754,11 @@ class _StudentView extends State<StudentView> {
                           if (snapshot.hasData) {
                             return snapshot.data;
                           } else {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           }
                         }),
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 );
               }),
 
@@ -1774,7 +1772,7 @@ class _StudentView extends State<StudentView> {
             width: MediaQuery.of(context).size.width,
             height: 50,
             decoration: BoxDecoration(
-                color: Color.fromARGB(255, 128, 224, 119),
+                color: const Color.fromARGB(255, 128, 224, 119),
                 border: Border.all(color: Colors.black)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1808,10 +1806,10 @@ class _StudentView extends State<StudentView> {
           ),
 
           FutureBuilder(
-              future: getMaxRacha(userProvider.userKey),
+              future: getMaxStreak(userProvider.userKey),
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 }
                 return Column(
                   children: [
@@ -1819,28 +1817,28 @@ class _StudentView extends State<StudentView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
-                            padding: EdgeInsets.only(top: 15),
+                            padding: const EdgeInsets.only(top: 15),
                             child: FutureBuilder(
-                              future: getRacha(userProvider.userKey),
+                              future: getStreak(userProvider.userKey),
                               builder:
                                   (context, AsyncSnapshot<dynamic> snapshot) {
                                 return Text(
-                                  "Racha de ${racha.toString()}",
+                                  "Racha de ${streak.toString()}",
                                   style: const TextStyle(fontSize: 16),
                                 );
                               },
                             )),
                         Transform.translate(
-                            offset: Offset(2, 5),
+                            offset: const Offset(2, 5),
                             child: Image.asset('assets/images/racha.png',
                                 width: 25, height: 25)),
                       ],
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 15, bottom: 15),
+                      padding: const EdgeInsets.only(top: 15, bottom: 15),
                       child: Text(
                         snapshot.data,
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
                     ),

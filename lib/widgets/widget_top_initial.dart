@@ -66,7 +66,7 @@ class _TopBarInitialState extends State<TopBarInitial> {
         ),
       ),
       centerTitle: true,
-      backgroundColor: Color.fromARGB(255, 157, 151, 202),
+      backgroundColor: const Color.fromARGB(255, 157, 151, 202),
     );
   }
 }

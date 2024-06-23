@@ -51,13 +51,13 @@ class AppointmentEditorState extends State<AppointmentEditor> {
   Widget _getAppointmentEditor(BuildContext context) {
 
     return Container(
-        color: Color.fromARGB(255, 245, 239, 216),
+        color: const Color.fromARGB(255, 245, 239, 216),
         //Section to write the appointment's title 
         child: ListView(
           padding: const EdgeInsets.all(0),
           children: <Widget>[
             ListTile(
-              tileColor: Color.fromARGB(255, 245, 239, 216),
+              tileColor: const Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
               leading: const Text(''),
               title: TextField(
@@ -83,7 +83,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             ),
            //Section to set appointment's start date
             ListTile(
-                tileColor: Color.fromARGB(255, 245, 239, 216),
+                tileColor: const Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                 leading: const Text(''),
                 title: Row(
@@ -196,7 +196,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     ])),
             //Section to set appointment's finish date
             ListTile(
-                tileColor: Color.fromARGB(255, 245, 239, 216),
+                tileColor: const Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                 leading: const Text(''),
                 title: Row(
@@ -312,7 +312,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                     ])),
             //section to choose wheter to repeat the appointment or not
             ListTile(
-              tileColor: Color.fromARGB(255, 245, 239, 216),
+              tileColor: const Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
               leading: const Icon(
                 Icons.repeat,
@@ -342,7 +342,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
               //If the appointment will repeat, it unfolds a menu where to choose different recurrence's options
               //it can be [daily], [weekly], [monthly] or [Personalizar]
               ListTile(
-                tileColor: Color.fromARGB(255, 245, 239, 216),
+                tileColor: const Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                 leading: const Text(''),
                 title: Row(
@@ -350,7 +350,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                   children: [
                     Container(
                       constraints:
-                          BoxConstraints(maxWidth: 300, maxHeight: 300),
+                          const BoxConstraints(maxWidth: 300, maxHeight: 300),
                       child: DropdownButton(
                         value: _freq,
                         isExpanded: true,
@@ -361,16 +361,16 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                           return DropdownMenuItem(
                             value: item,
                             child: (item == null)
-                                ? Text("SELECCIONAR")
+                                ? const Text("SELECCIONAR")
                                 : (item == 'DAILY')
-                                    ? Text("CADA DIA")
+                                    ? const Text("CADA DIA")
                                     : (item == 'WEEKLY')
                                         ? Text(dayNames.isNotEmpty
                                             ? "CADA ${_interval == 1 ? 'SEMANA' : '$_interval SEMANAS'} EL $selectedDays"
                                             : "CADA SEMANA EL ${DateFormat('EEEE', 'es').format(_startDate!).toUpperCase()}")
                                         : (item == 'PERSONALIZAR')
-                                            ? Text("PERSONALIZAR...")
-                                            : Text("CADA MES"),
+                                            ? const Text("PERSONALIZAR...")
+                                            : const Text("CADA MES"),
                           );
                         }).toList(),
                         onChanged: (item) {
@@ -407,7 +407,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             ),
             //Section that allows the user to set a reminder 
             ListTile(
-                tileColor: Color.fromARGB(255, 245, 239, 216),
+                tileColor: const Color.fromARGB(255, 245, 239, 216),
                 contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
                 leading: const Icon(
                   Icons.access_time,
@@ -435,7 +435,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
             ),
             //Section that allows the user to chose appointment's color
             ListTile(
-              tileColor: Color.fromARGB(255, 245, 239, 216),
+              tileColor: const Color.fromARGB(255, 245, 239, 216),
               contentPadding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
               leading: Icon(Icons.lens,
                   color: _colorCollection?[_selectedColorIndex]),
@@ -568,14 +568,14 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                             final List<Meeting> meetings = <Meeting>[];
                             if (_selectedAppointment != null) {
                               _events!.appointments?.removeWhere(
-                                  (meeting) => //* COMPROBAR SI AFECTA */
+                                  (meeting) => 
                                       meeting.from ==
                                           _selectedAppointment?.startTime &&
                                       meeting.to ==
                                           _selectedAppointment?.endTime);
 
                               key = _selectedAppointment!
-                                  .location; //* ARREGLAR LOCATION, ALMACENAR KEY EN OTRO CAMPO */
+                                  .location; 
                               
 
                               final DatabaseReference _updateRef;
@@ -636,7 +636,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                 if (removeNot.exists) {
                                   for (var id in removeNot.children) {
                                     if (id.exists) {
-                                      print((id.value as Map)["ID"]);
+                                      
                                       await NotificationService()
                                           .cancelSpecificNotifications(
                                               (id.value as Map)["ID"]);
@@ -674,7 +674,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                   nextDays.forEach((element) {
                                     if ((element as int) <
                                         _startDate!.weekday) {
-                                      //* PARA EL CASO EN QUE SE COJA UN DIA MENOR AL DIA ACTUAL */
+                                      
                                       //For the case in which a day is less than the current day
                                       element += 7;
                                       finalNotification = _startDate;
@@ -752,7 +752,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                   });
 
                                   var programedNoti =
-                                      _startDate!.add(Duration(minutes: -10));
+                                      _startDate!.add(const Duration(minutes: -10));
                                   String startTimeFormatted =
                                       "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}";
                                   String endTimeFormatted =
@@ -852,11 +852,10 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                   String endTimeFormatted = '';
                                   int notID;
 
-                                  print("debajo");
                                   nextDays.forEach((element) {
                                     if ((element as int) <
                                         _startDate!.weekday) {
-                                      //* PARA EL CASO EN QUE SE COJA UN DIA MENOR AL DIA ACTUAL */
+                                      
                                       //For the case in which a day is less than the current day
                                       element += 7;
                                       finalNotification = _startDate;
@@ -874,7 +873,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                       });
 
                                       finalNotification = _startDate!
-                                          .add(Duration(minutes: -10));
+                                          .add(const Duration(minutes: -10));
 
                                       startTimeFormatted =
                                           "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}";
@@ -931,7 +930,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                                     "ID": notID,
                                   });
                                   var programedNoti =
-                                      _startDate!.add(Duration(minutes: -10));
+                                      _startDate!.add(const Duration(minutes: -10));
                                   String startTimeFormatted =
                                       "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}";
                                   String endTimeFormatted =
@@ -1018,7 +1017,7 @@ class AppointmentEditorState extends State<AppointmentEditor> {
                             Navigator.pop(context);
                           }
                         },
-                        backgroundColor: Color.fromARGB(255, 43, 136, 148),
+                        backgroundColor: const Color.fromARGB(255, 43, 136, 148),
                         child: const Column(
                           children: [
                             Icon(

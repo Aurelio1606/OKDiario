@@ -363,7 +363,7 @@ showAlertDialog(BuildContext context, String key, int cancelId) {
     },
   );
   AlertDialog alert = AlertDialog(
-    backgroundColor: Color.fromARGB(255, 231, 231, 231),
+    backgroundColor: const Color.fromARGB(255, 231, 231, 231),
     surfaceTintColor: Colors.transparent,
     content: const Text(
       "¿Quieres eliminar esta tarea?",

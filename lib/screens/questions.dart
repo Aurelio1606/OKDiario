@@ -19,7 +19,7 @@ class _Questions extends State<Questions> {
   int cont = 0;
 
   ///saves user's write answer
-  final TextEditingController respuesta = TextEditingController();
+  final TextEditingController answer = TextEditingController();
 
   ///List with answer to multiple choice questions
   List<String?> isChecked = [];
@@ -41,7 +41,7 @@ class _Questions extends State<Questions> {
     super.initState();
     _pageController = PageController();
     if (writenField != 'null') {
-      respuesta.text = writenField;
+      answer.text = writenField;
     }
 
     currentIndex = testField;
@@ -50,7 +50,7 @@ class _Questions extends State<Questions> {
   @override
   void dispose() {
     super.dispose();
-    respuesta.dispose();
+    answer.dispose();
     indexField.clear();
   }
 
@@ -103,7 +103,7 @@ class _Questions extends State<Questions> {
   }
 
   ///Updates totalPoints in the database
-  updatePuntosTotales(String userKey, int updatePoints) async {
+  updateTotalPoints(String userKey, int updatePoints) async {
     final DatabaseReference _updateTotalPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -118,7 +118,7 @@ class _Questions extends State<Questions> {
   }
 
   ///Updates dailyPoints in the database
-  updatePuntos(String userKey, int updatePoints) async {
+  updatePoints(String userKey, int updatePoints) async {
     final DatabaseReference _updateDailyPoints = FirebaseDatabase(
             databaseURL:
                 "https://prueba-76a0b-default-rtdb.europe-west1.firebasedatabase.app")
@@ -167,7 +167,7 @@ class _Questions extends State<Questions> {
 
     var dia = DateTime.now().weekday.toString();
 
-    respuesta.text.isEmpty
+    answer.text.isEmpty
         ? _saveAnswer
             .child(getWeekNumber().toString())
             .child(dia)
@@ -183,7 +183,7 @@ class _Questions extends State<Questions> {
             .child(questionKey)
             .update({
             "Respuesta": argument,
-            "RespuestaEscrita": respuesta.text,
+            "RespuestaEscrita": answer.text,
             "Indice": index,
           });
   }
@@ -286,7 +286,7 @@ class _Questions extends State<Questions> {
           ),
           Expanded(
             child: TextField(
-              controller: respuesta,
+              controller: answer,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color.fromARGB(255, 190, 190, 190),
@@ -302,7 +302,7 @@ class _Questions extends State<Questions> {
                   ),
                 ),
               ),
-              style: TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black),
             ),
           ),
         ],
@@ -320,20 +320,20 @@ class _Questions extends State<Questions> {
           if (argument is List) {
             //If the list has no true strored and the text is empty
             if (!(argument as List).any((element) => element == true) &&
-                respuesta.text.isEmpty) {
+                answer.text.isEmpty) {
               snackBarService.showSnackBar(content: "COMPLETA LA PREGUNTA");
             } else {
               argument = getImageName(correctArgument);
 
               if (!questionComplete) {
-                updatePuntosTotales(userKey, totalPuntuation + 100);
-                updatePuntos(userKey, dayPoints + 100);
+                updateTotalPoints(userKey, totalPuntuation + 100);
+                updatePoints(userKey, dayPoints + 100);
                 updateGlobalPoints(userKey, globalPuntuation + 100);
-                saveAnswer(userKey, argument, questionKey, respuesta.text,
+                saveAnswer(userKey, argument, questionKey, answer.text,
                     selectedImages);
                 showRightDialog(context, _pageController!);
               } else {
-                saveAnswer(userKey, argument, questionKey, respuesta.text,
+                saveAnswer(userKey, argument, questionKey, answer.text,
                     selectedImages);
                 Navigator.of(context)
                     .pushReplacement(MaterialPageRoute(builder: (context) {
@@ -342,18 +342,18 @@ class _Questions extends State<Questions> {
               }
             }
           } else {
-            if (argument.isEmpty && respuesta.text.isEmpty) {
+            if (argument.isEmpty && answer.text.isEmpty) {
               snackBarService.showSnackBar(content: "COMPLETA LA PREGUNTA");
             } else {
               if (!questionComplete) {
-                updatePuntosTotales(userKey, totalPuntuation + 100);
-                updatePuntos(userKey, dayPoints + 100);
+                updateTotalPoints(userKey, totalPuntuation + 100);
+                updatePoints(userKey, dayPoints + 100);
                 updateGlobalPoints(userKey, globalPuntuation + 100);
-                saveAnswer(userKey, argument, questionKey, respuesta.text,
+                saveAnswer(userKey, argument, questionKey, answer.text,
                     currentIndex);
                 showRightDialog(context, _pageController!);
               } else {
-                saveAnswer(userKey, argument, questionKey, respuesta.text,
+                saveAnswer(userKey, argument, questionKey, answer.text,
                     currentIndex);
                 Navigator.of(context)
                     .pushReplacement(MaterialPageRoute(builder: (context) {
@@ -365,22 +365,22 @@ class _Questions extends State<Questions> {
         } else {
           //for the multiple choice questions,
           //if user has a wrong choice and the text field is empty, an alert is shown
-          if (respuesta.text.isEmpty && argument.isNotEmpty) {
+          if (answer.text.isEmpty && argument.isNotEmpty) {
             showWrongDialog(context);
-          } else if (respuesta.text.isEmpty) {
+          } else if (answer.text.isEmpty) {
             snackBarService.showSnackBar(content: "COMPLETA LA PREGUNTA");
           } else {
             //If user has not picked a choice but has written an answer
             if (!questionComplete) {
-              updatePuntosTotales(userKey, totalPuntuation + 100);
-              updatePuntos(userKey, dayPoints + 100);
+              updateTotalPoints(userKey, totalPuntuation + 100);
+              updatePoints(userKey, dayPoints + 100);
               updateGlobalPoints(userKey, globalPuntuation + 100);
               saveAnswer(
-                  userKey, argument, questionKey, respuesta.text, currentIndex);
+                  userKey, argument, questionKey, answer.text, currentIndex);
               showRightDialog(context, _pageController!);
             } else {
               saveAnswer(
-                  userKey, argument, questionKey, respuesta.text, currentIndex);
+                  userKey, argument, questionKey, answer.text, currentIndex);
               Navigator.of(context)
                   .pushReplacement(MaterialPageRoute(builder: (context) {
                 return const StudentView();
@@ -394,7 +394,7 @@ class _Questions extends State<Questions> {
         // alignment: Alignment.centerLeft,
         minimumSize: MaterialStateProperty.all(const Size(250, 60)),
         backgroundColor:
-            MaterialStateProperty.all(Color.fromARGB(255, 157, 151, 202)),
+            MaterialStateProperty.all(const Color.fromARGB(255, 157, 151, 202)),
         shape: MaterialStateProperty.all(RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         )),
@@ -625,7 +625,7 @@ class _Questions extends State<Questions> {
               TextField(
                 maxLines: 5,
                 //controller that stores the user's answer in respuesta
-                controller: respuesta,
+                controller: answer,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromARGB(255, 190, 190, 190),
@@ -646,7 +646,7 @@ class _Questions extends State<Questions> {
               const SizedBox(
                 height: 20,
               ),
-              completeButton(respuesta.text, respuesta.text, userKey,
+              completeButton(answer.text, answer.text, userKey,
                   questionKey, snackBarService),
             ],
           ),
@@ -719,7 +719,7 @@ class _Questions extends State<Questions> {
         style: TextStyle(color: Colors.black, fontSize: 16),
       ),
       onPressed: () async {
-        respuesta.clear();
+        answer.clear();
         Navigator.of(context, rootNavigator: true)
             .pop(); //close the AlertDialog
 

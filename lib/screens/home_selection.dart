@@ -44,8 +44,8 @@ class _HomeSelectionState extends State<HomeSelection> {
   void _refreshContent() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool show = prefs.getBool('Shown') ?? false;
-    int horas = prefs.getInt('Horas') ?? 18;
-    int minutos = prefs.getInt('Minutos') ?? 00;
+    int hours = prefs.getInt('Horas') ?? 18;
+    int minutes = prefs.getInt('Minutos') ?? 00;
 
     var now = DateTime.now();
     DateTime lastDate = DateTime(
@@ -65,9 +65,9 @@ class _HomeSelectionState extends State<HomeSelection> {
       //Comprobar si sigue funcionando
       setState(() {
         var pollDateInterval1 =
-            DateTime(2024, now.month, now.day, horas, minutos);
+            DateTime(2024, now.month, now.day, hours, minutes);
         var pollDateInterval2 =
-            DateTime(2024, now.month, now.day, horas, minutos + 30);
+            DateTime(2024, now.month, now.day, hours, minutes + 30);
 
         //if the alert has not yet been shown, if it is not the weekend and the current hour is bigger than or equal
         //to the one stored in the device, the alert is shown
@@ -76,7 +76,7 @@ class _HomeSelectionState extends State<HomeSelection> {
               now.weekday != DateTime.sunday) {
             if (now.isAfter(pollDateInterval1)) {
               if (now.isBefore(pollDateInterval2)) {
-                Future.delayed(Duration(seconds: 2), () {
+                Future.delayed(const Duration(seconds: 2), () {
                   //showStateDialog(context, now);
                 });
 
@@ -94,8 +94,8 @@ class _HomeSelectionState extends State<HomeSelection> {
   checkHour() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool show = prefs.getBool('Shown') ?? false;
-    int horas = prefs.getInt('Horas') ?? 18;
-    int minutos = prefs.getInt('Minutos') ?? 00;
+    int hours = prefs.getInt('Horas') ?? 18;
+    int minutes = prefs.getInt('Minutos') ?? 00;
 
     var now = DateTime.now();
     DateTime lastDate = DateTime(
@@ -115,9 +115,9 @@ class _HomeSelectionState extends State<HomeSelection> {
     //to the one stored in the device, the alert is shown
     if (!show) {
       var pollDateInterval1 =
-          DateTime(2024, now.month, now.day, horas, minutos);
+          DateTime(2024, now.month, now.day, hours, minutes);
       var pollDateInterval2 =
-          DateTime(2024, now.month, now.day, horas, minutos + 30);
+          DateTime(2024, now.month, now.day, hours, minutes + 30);
 
       if (now.weekday != DateTime.saturday && now.weekday != DateTime.sunday) {
         if (now.isAfter(pollDateInterval1)) {

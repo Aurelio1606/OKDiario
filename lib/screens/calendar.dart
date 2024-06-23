@@ -80,6 +80,8 @@ final _valueListDayPickerFreq = ['DAILY', 'WEEKLY', 'MONTHLY'];
 final _valueListInterval = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 class LoadDataFromFireBase extends StatelessWidget {
+  const LoadDataFromFireBase({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -100,7 +102,6 @@ class LoadDataFromFireStore extends StatefulWidget {
 
 class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
   CalendarController? _controller;
-  //List<String>? _eventNameCollection;
   DataSnapshot? querySnapshot;
   dynamic data;
 
@@ -109,7 +110,6 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
 
   @override
   void initState() {
-    //_initializeEventColor();
 
     ///Gets the appointments from the database
     getDataFromDatabase(chosenCalendar).then((results) {
@@ -142,7 +142,7 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
     loadSelectedDate();
 
     _controller = CalendarController();
-    //_events = DataSource(getMeetingDetails());
+    _events = DataSource(getMeetingDetails());
     _selectedAppointment = null;
     _selectedColorIndex = 0;
     _selectedTimeZoneIndex = 0;
@@ -184,7 +184,7 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
           color: const Color.fromARGB(255, 247, 243, 228),
           padding: const EdgeInsets.only(right: 10),
           surfaceTintColor: const Color.fromARGB(179, 255, 255, 255),
-          offset: const Offset(-40, 40), //* Para mover la ventana */
+          offset: const Offset(-40, 40), //Moves menu window
           onSelected: (String value) {
             setState(() {
               selectedValue = value;
@@ -204,11 +204,11 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
                 _controller!.view = CalendarView.day;
               } else if (selectedValue == '2') {
                 //if the user selects week displays, the calendar option keeps as 1
-                //but calendar view changes to week
+                //but calendar view changes to week. Option 2 it's not saved in the database
+                //it has to be choosen every time the user want to display next day
                 chosenCalendar = '1';
                 _controller!.view = CalendarView.week;
-                // displayDate =
-                //     DateTime.now().add(Duration(days: 1, minutes: -60));
+              
               } else if (selectedValue == '3') {
                 //3->common calendar
                 chosenCalendar = '3';
@@ -302,7 +302,7 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
         ),
       ),
       centerTitle: true,
-      backgroundColor: Color.fromARGB(255, 157, 151, 202),
+      backgroundColor: const Color.fromARGB(255, 157, 151, 202),
     );
   }
 
@@ -549,8 +549,6 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
                         initialSelectedDate: selectedDate,
                         initialDisplayDate: displayDate,
                         showCurrentTimeIndicator: true,
-                        //showTodayButton: true,
-                        //dataSource: _getCalendarDataSource(collection),
                         monthViewSettings: const MonthViewSettings(
                           showAgenda: true,
                           agendaItemHeight: 200,
@@ -810,7 +808,8 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
           } else {
             //initial calendar interface, where there is no data 
 
-            //If there is data, it loads it.
+            //If the user add a new event, the calendar display is updated
+            //and shows the data
             loadData();
 
             return Scaffold(
@@ -895,8 +894,6 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
                       initialSelectedDate: selectedDate,
                       initialDisplayDate: displayDate,
                       showCurrentTimeIndicator: true,
-                      //showTodayButton: true,
-                      //dataSource: _getCalendarDataSource(collection),
                       monthViewSettings: const MonthViewSettings(
                         showAgenda: true,
                         agendaItemHeight: 200,
@@ -1055,74 +1052,59 @@ class LoadDataFromFireStoreState extends State<LoadDataFromFireStore> {
     }
   }
 
-  // void _initializeEventColor() {
-  //   _colorCollection = <Color>[];
-  //   _colorCollection?.add(const Color(0xFF0F8644));
-  //   _colorCollection?.add(const Color(0xFF8B1FA9));
-  //   _colorCollection?.add(const Color(0xFFD20100));
-  //   _colorCollection?.add(const Color(0xFFFC571D));
-  //   _colorCollection?.add(const Color(0xFF36B37B));
-  //   _colorCollection?.add(const Color(0xFF01A1EF));
-  //   _colorCollection?.add(const Color(0xFF3D4FB5));
-  //   _colorCollection?.add(const Color(0xFFE47C73));
-  //   _colorCollection?.add(const Color(0xFF636363));
-  //   _colorCollection?.add(const Color(0xFF0A8043));
-  // }
 
   ///Retunrs a meeting list with its details
-  // List<Meeting> getMeetingDetails() {
-  //   final List<Meeting> meetingCollection = <Meeting>[];
+  ///initializar the color collection and the color names 
+  List<Meeting> getMeetingDetails() {
+    final List<Meeting> meetingCollection = <Meeting>[];
 
-  //   _colorCollection = <Color>[];
-  //   _colorCollection?.add(const Color.fromARGB(255, 96, 196, 141));
-  //   _colorCollection?.add(const Color.fromARGB(255, 192, 120, 212));
-  //   _colorCollection?.add(const Color.fromARGB(255, 196, 82, 82));
-  //   _colorCollection?.add(const Color.fromARGB(255, 212, 115, 80));
-  //   _colorCollection?.add(const Color.fromARGB(255, 161, 109, 77));
-  //   _colorCollection?.add(const Color.fromARGB(255, 201, 202, 101));
-  //   _colorCollection?.add(const Color.fromARGB(255, 94, 110, 201));
-  //   _colorCollection?.add(const Color.fromARGB(255, 219, 128, 120));
-  //   _colorCollection?.add(const Color.fromARGB(255, 133, 129, 129));
+    _colorCollection = <Color>[];
+    _colorCollection?.add(const Color.fromARGB(255, 96, 196, 141));
+    _colorCollection?.add(const Color.fromARGB(255, 192, 120, 212));
+    _colorCollection?.add(const Color.fromARGB(255, 196, 82, 82));
+    _colorCollection?.add(const Color.fromARGB(255, 212, 115, 80));
+    _colorCollection?.add(const Color.fromARGB(255, 161, 109, 77));
+    _colorCollection?.add(const Color.fromARGB(255, 201, 202, 101));
+    _colorCollection?.add(const Color.fromARGB(255, 94, 110, 201));
+    _colorCollection?.add(const Color.fromARGB(255, 219, 128, 120));
+    _colorCollection?.add(const Color.fromARGB(255, 133, 129, 129));
 
-  //   _colorNames = <String>[];
-  //   _colorNames?.add('VERDE');
-  //   _colorNames?.add('MORADO');
-  //   _colorNames?.add('ROJO');
-  //   _colorNames?.add('NARANJA');
-  //   _colorNames?.add('MARRON');
-  //   _colorNames?.add('AMARILLO');
-  //   _colorNames?.add('AZUL');
-  //   _colorNames?.add('ROSA');
-  //   _colorNames?.add('GRIS');
+    _colorNames = <String>[];
+    _colorNames?.add('VERDE');
+    _colorNames?.add('MORADO');
+    _colorNames?.add('ROJO');
+    _colorNames?.add('NARANJA');
+    _colorNames?.add('MARRON');
+    _colorNames?.add('AMARILLO');
+    _colorNames?.add('AZUL');
+    _colorNames?.add('ROSA');
+    _colorNames?.add('GRIS');
 
-  //   // _timeZoneCollection = <String>[];
-  //   // _timeZoneCollection?.add('Default Time');
+    final DateTime today = DateTime.now();
+    final Random random = Random();
+    for (int month = -1; month < 2; month++) {
+      for (int day = -5; day < 5; day++) {
+        for (int hour = 9; hour < 18; hour += 5) {
+          meetingCollection.add(Meeting(
+            from: today
+                .add(Duration(days: (month * 30) + day))
+                .add(Duration(hours: hour)),
+            to: today
+                .add(Duration(days: (month * 30) + day))
+                .add(Duration(hours: hour + 2)),
+            background: _colorCollection![random.nextInt(9)],
+            startTimeZone: '',
+            endTimeZone: '',
+            description: '',
+            isAllDay: false,
+            eventName: '',
+          ));
+        }
+      }
+    }
 
-  //   final DateTime today = DateTime.now();
-  //   final Random random = Random();
-  //   for (int month = -1; month < 2; month++) {
-  //     for (int day = -5; day < 5; day++) {
-  //       for (int hour = 9; hour < 18; hour += 5) {
-  //         meetingCollection.add(Meeting(
-  //           from: today
-  //               .add(Duration(days: (month * 30) + day))
-  //               .add(Duration(hours: hour)),
-  //           to: today
-  //               .add(Duration(days: (month * 30) + day))
-  //               .add(Duration(hours: hour + 2)),
-  //           background: _colorCollection![random.nextInt(9)],
-  //           startTimeZone: '',
-  //           endTimeZone: '',
-  //           description: '',
-  //           isAllDay: false,
-  //           eventName: _eventNameCollection![random.nextInt(7)],
-  //         ));
-  //       }
-  //     }
-  //   }
-
-  //   return meetingCollection;
-  // }
+    return meetingCollection;
+  }
 }
 
 ///Initializes the meeting list using the data in [collection] and returns a meetingDataSource object
@@ -1293,7 +1275,6 @@ getDataFromDatabase(String option) async {
 
 ///Gets the user's appointmets and creates a meetings list
 Future<List<Meeting>> getEvents() async {
-  //* COMPROBAR */
   UserProvider userProvider = UserProvider();
 
   final DatabaseReference _calendarRef = FirebaseDatabase(
@@ -1321,7 +1302,7 @@ Future<List<Meeting>> getEvents() async {
           isAllDay: false,
           from: DateFormat('dd/MM/yyyy HH:mm:ss').parse(data['StartTime']),
           to: DateFormat('dd/MM/yyyy HH:mm:ss').parse(data['EndTime']),
-          background: _colorCollection![data['Color']], //* VER COLOR */
+          background: _colorCollection![data['Color']], 
           notification: data['Notification'],
           key: data['Key'],
           recurrenceRule: data['recurrenceRule'],
@@ -1504,13 +1485,13 @@ Widget monthBuilder(
   return Stack(
     children: [
       Container(
-        color: Color.fromARGB(255, 96, 171, 233),
+        color: const Color.fromARGB(255, 96, 171, 233),
         width: details.bounds.width,
         height: details.bounds.height,
         child: Center(
           child: Text(
             month + ' ' + details.date.year.toString(),
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
             textAlign: TextAlign.center,
           ),
         ),
